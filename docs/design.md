@@ -239,7 +239,7 @@ Larksuite 後台可以設定 bot：
 > 4. 拿到 `App ID` / `App Secret` 後填回 wizard step 4 即可
 > **對應上面的 step 4「填 Lark App ID/Secret」**——這條 launcher 是現在能找到最快、最少踩坑的取得方式。
 
-![Lark 智能体应用一键 launcher 截图（填名稱→立即創建 即可拿 App ID/Secret）](docs/assets/img_1778392141449_0.jpg)
+![Lark 智能体应用一键 launcher 截图（填名稱→立即創建 即可拿 App ID/Secret）](assets/img_1778392141449_0.jpg)
 
 *Lark 智能体应用一键 launcher 截图（填名稱→立即創建 即可拿 App ID/Secret）*
 
