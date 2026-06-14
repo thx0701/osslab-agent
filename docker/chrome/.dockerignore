@@ -1,0 +1,8 @@
+profile-seed.tar*
+chrome-profile/
+*/chrome-profile/
+*.bak
+*.log
+docker-compose*.yml
+docker-compose*.yaml
+test-results/
