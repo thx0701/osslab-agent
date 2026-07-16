@@ -380,7 +380,7 @@ npx osslab-agent init
 
 # 11. License & Credits
 
-- **本 repo**（osslab-agent + chrome 容器薄層）：Apache-2.0
+- **本 repo**（osslab-agent + chrome 容器薄層）：MIT
 - **Base image**：[kasmweb/chrome](https://hub.docker.com/r/kasmweb/chrome) by Kasm Technologies（自帶 license）
 - **cc-connect** / **lark-cli** / **Claude Code CLI** / **Codex CLI**：各自 license，本 repo 不重新分發
 

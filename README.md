@@ -32,4 +32,4 @@ osslab-agent 不是再做一套 openclaw / harmes 那種自研 agent framework�
 
 ## License
 
-[Apache License 2.0](LICENSE)
+[MIT License](LICENSE)
