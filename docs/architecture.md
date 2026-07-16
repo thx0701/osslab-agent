@@ -1,378 +1,246 @@
-# osslab-agent 架構規格
+# 架構規格
 
-> 狀態：WIP / draft。本文件描述系統如何組成、保存狀態及控制權限；使用情境請看 [功能規格](functionality.md)。
+> WIP。這裡寫系統怎麼組、狀態放哪、權限怎麼卡；使用情境看 [功能規格](functionality.md)。
 
-## 1. 架構目標
+## 1. 怎麼拆責任
 
-osslab-agent 把 channel、訂閱制 code agent runtime、工具、browser 與人工接手接成可追溯的工作流。它不重造 agent framework：Claude Code CLI、Codex CLI 或其他可支援 runtime 負責推理與工具決策；osslab-agent 負責 routing、session、project policy、browser、approval 與 audit 關聯。
+Claude Code、Codex 等 CLI 負責推理跟叫工具。osslab-agent 負責：訊息進哪個 project、session 怎麼掛、能用什麼工具、browser 誰用、什麼要人批、重要結果怎麼對回 Git。
 
-核心判斷：
+幾個固定取捨：
 
-| 判斷 | 做法 |
-|---|---|
-| 不重造 runtime | 以現成 code agent CLI 作為可替換 agent process |
-| 優先使用訂閱制 runtime | 常態任務由已授權的 CLI 執行；本地 LLM / 私有檢索是可選補充 |
-| 不依賴一次性 prompt | 使用長 session、stdio、process bridge 或互動式 session 保留 context、stream 與工具調用 |
-| Lark 不作長期知識庫 | Lark 處理事件、通知與批准；可重用結論進 Git artifact |
-| browser 是真實執行環境 | 同一隔離 session 同時提供 agent CDP 與人類 VNC 接手 |
-| 共用規範、隔離狀態 | 團隊規範與權威知識可共用；session、browser、bot identity 與 work directory 必須隔離 |
+- 不重寫 agent framework；CLI 當可換的 runtime process。  
+- 日常優先吃訂閱制 CLI；本地模型／私有檢索當補充。  
+- 長 session／stdio／process bridge，不賭一次性 `-p`。  
+- Lark 管事件、通知、批准；能重用的東西進 Git。  
+- Browser 是真 Chrome：AI 用 CDP，人用 VNC，同一 profile。  
+- 規範與知識可共用；對話、browser 登入態、bot 身份、工作目錄必須分開。
 
-### 1.1 Shared vs Isolated
+多入口不是「同一個 agent 換皮」。驗收大致是：大家讀得到同一套已授權規範；A 的聊天不會出現在 B；A 的 cookie 不會串到 B；每個入口有自己的 bot、目錄、browser 接點（除非 project 明文允許共用 browser，見 §4）。
 
-多入口不是「同一個 agent 換皮」。產品必須同時滿足兩件事：
+## 2. 長期真相：Git
 
-| 層 | 可共用 | 必須隔離 |
+程式、policy、playbook、研究結論、skill 定義，正本在 private Git（Forgejo／GitHub／Gitea 都行）。Lark 跟 Web 是工作面，不是 version control。
+
+```text
+Lark / Web / API
+        ↓
+project + runtime + browser
+        ↓
+branch → commit / PR → 人批
+        ↓
+private Git（可 review、可回滾）
+```
+
+實務上：
+
+1. 重要結論、規則、code 要變成可 review 的變更。  
+2. 重要 action 盡量對得回：request、repo、branch／PR、誰批的、結果。  
+3. 對話、cache、下載暫存、browser profile、未定草稿是 runtime 狀態，不必每筆 commit。  
+4. 不要每個對話開一個 repo；用 project repo 或專門的 knowledge／artifact repo。  
+5. 密鑰、token、cookie、密碼、OAuth secret、可轉發的 invitation 永不進庫。
+
+Git 是正本；機器上可以 read-only mount 或定期 sync 一份給 agent 讀。要改正本就走 branch／PR，不要靠「模型記得上次怎麼說」。
+
+## 3. 狀態放哪
+
+| 東西 | 正本 | 備註 |
 |---|---|---|
-| 規範與知識 | 團隊規則、playbook、經授權的 skill／MCP 定義、私有 Git 上的權威知識 | — |
-| 執行身份與狀態 | — | chat session、conversation history、BrowserProvider profile（cookie／download／vault 狀態）、Lark bot identity、work directory、CDP／VNC 接入點 |
+| 要 review 的內容 | private Git | code、runbook、研究結論、skill |
+| 機器上讀到的規範 | 同上，經 mount／sync | 執行期視圖 |
+| 進行中對話／草稿 | session／Web | 要留再輸出 commit |
+| 交辦與批准 | Lark + action 紀錄 | 事件流 |
+| queue、cache、下載 | runtime | 可丟 |
+| 密碼與 token | host secret／環境變數 | 不進 Git |
 
-驗證標準：任一入口應能讀到同一份已授權的團隊規範與知識；bot A 的對話不得出現在 bot B；bot A 的 browser 登入態不得串到 bot B；每個入口使用自己的 bot identity、work directory 與 browser 接入點（除非 project 明確允許 domain-shared browser，見 §4.1）。
+Web 可以當工作區，但「要不要長期留」聽 project 的 Git 規則。
 
-## 2. Git-first：長期真相與可追溯 action
+## 4. Project
 
-私有 Git（例如 Forgejo、GitHub、Gitea）是程式、agent policy、playbook、project knowledge、筆記、技能與研究 artifact 的長期真相來源。Lark 與 Web workbench 是工作介面；它們不取代 version control。
+一個 project 大致綁：
 
-~~~text
-Lark / Web workbench / API
-  交辦、討論、通知、批准、短期 session
-                 ↓
-project router + agent runtime + BrowserProvider
-                 ↓
-branch → working change → commit / PR → human approval
-                 ↓
-private Git: long-term truth, review, rollback and artifact history
-~~~
+```text
+runtime + 工作目錄 + channel／bot 身份
++ 誰能做什麼 + browser 規則 + 工具白名單
++ 資料保留 + 哪些 action 要批
+```
 
-原則如下：
+不是 UI 上的資料夾標籤。同一資料域可以掛多個 runtime（例如 Claude 跟 Codex 各一個入口），但各自 session；不能因此共用 cookie 或偷開對方工具。
 
-1. 重要結論、可重用研究、規則、程式與 playbook 要產生可 review 的 Git 變更。
-2. 每個重要 action 至少可關聯 request/task、repo、branch、commit 或 PR、批准紀錄及結果。
-3. session、cache、下載暫存、browser profile、模型思考與未定草稿屬 runtime state，不需逐筆 commit。
-4. 不為每次對話建立 repo；以 project repo 或專門的 knowledge / artifact repo 作為保存單位。
-5. Git 只保存可公開給該 repo 成員的內容。私鑰、token、cookie、密碼、OAuth secret 與可用 invitation link 永不入庫。
+**Browser 預設隔離。** 角色不同、客戶資料不同、高風險登入 → 各用各的 profile。  
+**可以共用的情況：** 同一資料域、同一套資料規則、沒有跨客戶隔離需求，而且設定裡寫明。  
+**不要共用：** 業務已登入的 bot 跟 research bot；不同客戶或不同權限域的 cookie／下載。
 
-### 2.1 權威知識的執行期掛載
+## 5. 資料怎麼走
 
-Git-first 描述的是**正本**；執行期仍需要可讀、可更新節奏的掛載：
+```text
+Lark 訊息                    Web 對話／圖／檔
+        \                      /
+         → channel → 選 project
+                      ↓
+              （可選）gateway
+                      ↓
+              session bridge（stream／stdio）
+                      ↓
+              runtime + 允許的工具
+                      ↓
+              browser（CDP／Playwright + VNC）
+                      ↓
+         ERP、信箱、電商、文件、網站…
+```
 
-| 類型 | 正本 | 執行期 |
-|---|---|---|
-| 權威知識／policy／skill 定義 | private Git | 部署機 read-only mount 或定期 sync；agent 依任務讀取，不憑記憶改寫正本 |
-| 可 review 的成果 | private Git（branch／PR） | working tree → commit／PR |
-| 短期對話與草稿 | session store | Web workbench／runtime；需保留時再輸出為 artifact |
+產品路徑就是 channel → project → runtime session。前面可以再掛 webhook／auth gateway；不要假設一個 process 扛全部。
 
-## 3. 狀態模型
+## 6. 元件
 
-| 類型 | 正本 | 例子 |
-|---|---|---|
-| 長期、可 review 的內容 | 私有 Git repo | code、policy、runbook、研究結論、benchmark、skill |
-| 權威知識的 live 視圖 | 私有 Git（經 mount／sync） | 部署機上的 knowledge tree、runtime 注入的規範 |
-| 工作中內容 | Web workbench / agent session | 對話、stream、草稿、附件工作區 |
-| 事件與批准 | Lark + action record | 任務來源、批准、通知、人工接手 |
-| 執行狀態 | project runtime | queue、session、download、cache、temporary artifact |
-| 機密 | host secret store / private environment | SSH private key、password、OAuth secret、PAT、cookie |
-
-Web workbench 可以提供 project context 與 artifact 工作區，但其長期保存策略必須以 project 的 Git policy 為準。需要保留的內容應輸出為 Markdown、結構化資料或程式碼後 commit。
-
-## 4. Project 是部署與安全單位
-
-~~~text
-Project = runtime
-        + work directory
-        + channel identity
-        + identity / authorization policy
-        + browser policy
-        + tool policy
-        + data-retention policy
-        + action policy
-~~~
-
-Project routing 同時決定 context、可用工具、資料來源、browser profile、保留策略與 action policy。它不是單純的 UI 分類。
-
-允許「同一 work directory 家族、多個 runtime」（例如同一資料域下的 Claude Code、Codex、其他 CLI 入口），但每個入口仍是獨立 session 與 channel identity；不得因此共用 cookie 或未授權的 tool surface。
-
-### 4.1 Browser 隔離與 domain-shared profile
-
-bot 與 browser 的關係採**預設隔離**，而非絕對一對一：
-
-| 規則 | 說明 |
+| 元件 | 幹嘛 |
 |---|---|
-| 預設 | 高風險登入域、客戶資料域或不同角色 → 各自 BrowserProvider profile |
-| 允許共用 | 同一 data domain、相同 data policy、無跨客戶隔離需求，且 project 明文配置 domain routing |
-| 禁止 | 業務登入態 bot 與 research bot 共 profile；不同客戶或不同權限域共 cookie／download |
+| Lark | 事件、通知、Bot、文件、卡片 |
+| Web 工作台 | 長對話、檔案、project 工作區、草稿 |
+| channel／session bridge | 把人與訊息綁到正確 project／session |
+| Runtime | 推理、叫工具、產出變更與摘要 |
+| 工具（skill／MCP／shell…） | 按 project 開；見下 |
+| private Git | 正本、review、回滾 |
+| BrowserProvider | profile、CDP、VNC |
+| 本地 LLM／檢索 | 可選 |
+| osslab-agent CLI | 安裝與串起來 |
 
-明確的 domain routing 可以讓多個 runtime 共用同一個受控 browser profile；未配置則不得共用。
+### Runtime 要對上什麼
 
-## 5. 主要資料流
+「可替換」不是寫個產品名就好，至少要講清楚：
 
-~~~text
-Lark group / direct message            Web workbench chat / image / file
-          ↓                                          ↓
-          └──────── channel adapter → project routing ─┘
-                              ↓
-              （可選）gateway：webhook、auth、fan-out
-                              ↓
-                 session bridge over stream / stdio
-                              ↓
-      Runtime Provider → allowed tools / MCP / skills / shell
-                              ↓
-              BrowserProvider: CDP / Playwright and VNC
-                              ↓
-    ERP, email, commerce, documents, Lark, websites and other systems
-~~~
+- session 怎麼起、怎麼停、能不能 resume  
+- stream 怎麼吐進度、tool call、錯誤  
+- 工作目錄跟 env（例如 CDP port）怎麼注入  
+- 這個 session 看得到哪些工具  
+- 斷線、額度用完、auth 過期時怎麼回報  
 
-產品路徑是：**channel adapter → project router → runtime session**。reference deployment 可在 adapter 前加 gateway（webhook、auth、fan-out）；產品不得假設單一 process 扛全部 channel 與 runtime。
+v1 以訂閱制 code agent CLI 為主。多 worker 互審那種 orchestrator 可以接，但是加分項，不是每個 runtime 預設都有；接了也一樣要遵守 session／工具／browser 隔離。
 
-每個 project 可路由到獨立 session。需要登入態時，session 使用指定的 BrowserProvider profile；人與 agent 對同一 profile 接手，而不同 project 不得無意間共用 cookie、download 或 vault state。
+### 工具
 
-## 6. 元件責任
+工具是 project 邊界，不是全站外掛市場。
 
-| 元件 | 責任 |
-|---|---|
-| Lark 與 Open Platform | 事件、通知、Bot、文件、互動卡片、上游身份來源 |
-| Web workbench | 長對話、圖片、檔案、project workspace、stream 與草稿（產品內建 workbench；reference 可對應 cc-connect 類 web channel） |
-| channel adapter / router | 將 channel 事件正規化並路由到 project |
-| session bridge | 將使用者與 project 綁到正確 runtime session |
-| Runtime Provider | 推理、工具調用、生成變更候選與結果摘要（見 §6.1） |
-| Tools surface | skill、MCP、shell 與其他工具的 allowlist 與可見範圍（見 §6.2） |
-| 私有 Git | 程式、policy、artifact、review、approval 關聯與回滾 |
-| BrowserProvider | profile 隔離、CDP/Playwright、自動化與 VNC 人工接手 |
-| local LLM / private retrieval | 敏感資料、低成本或離線處理的可選擴展 |
-| osslab-agent CLI | 安裝、設定、啟停與連接上述元件的產品層 |
+- 白名單：shell、browser、哪些 MCP、哪些 skill、哪些外部 API  
+- skill 跟 policy 正本在 Git，機器上怎麼掛是部署問題  
+- 某 runtime 專用的流程／skill 不要硬套到全部  
+- MCP 的密鑰只放 host secret；掛了要掛得穩，掛不起來要看得出  
 
-### 6.1 Runtime Provider 契約
+跨 project 不要默默繼承比較大的權限。
 
-「可替換 runtime」需要最小契約，而不是只列產品名稱。每個 Runtime Provider 至少應定義：
+## 7. 身份、權限、批准
 
-| 能力 | 要求 |
-|---|---|
-| Session lifecycle | 啟動、恢復、結束；是否支援 resume |
-| Stream 事件 | token／進度、tool call、error、完成狀態 |
-| 工作目錄與 env | work directory、必要 env（例如 browser CDP 接入點）的注入方式 |
-| Tools 可見範圍 | 哪些 skill／MCP／shell 對此 session 可見 |
-| 失敗語意 | 斷線、額度耗盡、auth 過期、不可恢復錯誤；是否可重試或需人工接手 |
+三件事別混：
 
-首批預期實作以訂閱制 code agent CLI 為主（Claude Code CLI、Codex CLI 等）。**Orchestrator runtime**（多 worker：實作 → 審查，或類似互審流程）是可選能力，不是所有 runtime 的預設行為；若部署此類 runtime，仍須遵守同一 session／tool／browser 隔離規則。
+1. **登入產品的是誰**（OIDC 等）  
+2. **這個身份能進哪些 project、讀哪些資料、用哪些工具**  
+3. **這一筆外發／下單／正式寫入有沒有人批**  
 
-### 6.2 Tools surface：skills 與 MCP
+支援標準 OIDC。OSSLab 參考部署用 Authentik、上游可接 Lark；你也可以接自己的 IdP。Lark 的 bot secret、人員 web 登入、Git SSH／PAT，各走各的，不要用「有登入 Lark」就自動變 admin。
 
-Tools 是 project 的安全邊界，不是全域插件池。
+稽核時再分三個角色：
 
-| 層 | 內容 |
-|---|---|
-| Project tool policy | allowlist：shell、browser、MCP server、skills 集合、外部 API |
-| Skills | 可版控；按 project 掛載。不得把僅適用某一 runtime 的儀式或專屬 skill 強塞進所有 runtime |
-| MCP | 按 project 啟停；credential 只進 host secret store；連線失敗要可觀測 |
-| 與 Git 的關係 | skill 定義與 policy 正本在 private Git；live mount 是部署細節 |
+- **Identity** — 誰在用產品  
+- **Git operator** — 誰 push／開 PR（人、bot、CI）  
+- **Approver** — 誰批這個 action  
 
-agent 只能使用當前 project 允許的 tools；跨 project 不得隱式繼承高權限 tool surface。
+群組裡回一句「好」可以當批准，但要綁定那次 request 跟那一版內容／commit，舊同意不能套新動作。Bot 可以當 Git operator，高風險動作不能自己批自己。
 
-## 7. 身份、授權與批准
+### 批准大致怎麼切
 
-身份驗證、產品授權與 action 批准是三個不同層次：
-
-~~~text
-identity provider → product session
-        身份驗證：誰在使用
-
-project role + data policy + tool policy
-        授權：可讀哪些資料、可使用哪些 project 與工具
-
-request + action class + approval record
-        批准：這一個外發、下單、付款或正式寫入能否執行
-~~~
-
-產品應支援標準 OIDC provider。OSSLab reference deployment 已有 Authentik，並以 Lark 作為上游身份來源；新部署可以接自己的 OIDC provider。Lark direct OAuth 是部署選項，不應與產品授權或 bot credential 混在一起。
-
-Web SSO 只處理人員登入。Git SSH、PAT、API、CI 與 bot 使用自己的 transport credential；不得用人員 web session 取代。每個產品仍在本地判斷 reader、operator、approver、admin 及 project / data scope，不因使用者可登入 Lark 就自動提權。
-
-### 7.1 三種 actor
-
-稽核與授權要分開三種角色，不可混成「某個人／某個 bot」：
-
-| Actor | 是什麼 | 例子 |
-|---|---|---|
-| Identity | 誰在使用產品 | OIDC 使用者、Lark 使用者 |
-| Git operator | 誰寫入 version control | 人類帳號、bot 帳號、CI 帳號 |
-| Approver | 誰批准某個 action | Lark 訊息批准、PR review、二次確認 workflow |
-
-群組訊息可以作批准來源，但批准必須關聯特定 request 與**內容版本或 commit**；不能把模糊或舊的同意套用到新的 action。Git operator 與 Approver 可以是不同人；bot 可以是 Git operator，但不能自行充當高風險 action 的 Approver。
-
-### 7.2 最小 action policy
-
-| 類別 | 例子 | 預設 | 最低紀錄 |
+| 類型 | 例子 | 預設 | 至少留下 |
 |---|---|---|---|
-| 讀取 | 查文件、查狀態、公開 research | 可直接執行 | request、source、result 摘要 |
-| 草稿 | Markdown、email draft、程式草稿 | 可直接執行 | session artifact 或 branch |
-| 可回滾內部變更 | branch、commit、PR、草稿資料 | 依 project policy | repo、branch、commit/PR、驗證結果 |
-| 對外 / 營運寫入 | 寄信、發文、正式資料寫入、下單 | 需明確批准 | approver、批准時間、action/result、驗證結果 |
-| 高風險不可逆 | 付款、刪資料、改權限、正式部署 | 需二次確認或既定 workflow | action record、結果與回復資訊 |
+| 讀 | 查狀態、公開研究 | 直接做 | request、來源、結果摘要 |
+| 草稿 | md、信稿、code 草稿 | 直接做 | session 產物或 branch |
+| 可回滾內部 | branch、PR、草稿資料 | 看 project | repo、branch、PR、驗證 |
+| 外發／營運寫入 | 寄信、正式建單 | 要批 | 誰批、何時、結果、驗證 |
+| 高風險 | 付款、刪資料、改權限、正式部署 | 二次確認或既定流程 | action 紀錄與怎麼救 |
 
-### 7.3 寫入後驗證
+### 寫完要驗
 
-對正式系統（ERP、電商後台、生產設定等）的寫入，agent 應在**同一 project** 的 browser 或 API 做最小驗證，再回報完成。
+改 ERP、電商後台、prod 設定之後，用**同一個 project** 的 browser 或 API 做最小確認再講完成。借別人的 browser 驗、或驗不了卻說好了，都不算。
 
-| 規則 | 說明 |
+## 8. Browser
+
+BrowserProvider 是執行資源，不是登入身份本身。每個 project 要寫清：用哪家實作、profile 怎麼隔離、CDP／Playwright 怎麼接、VNC 怎麼進、能登哪些站、下載與 cookie 留多久。
+
+預設可以是改過的 Kasm Chrome：完整 Chrome、profile 持久、CDP、web VNC、中文輸入、可選 Bitwarden。也要能換 BrowseForge 這類已有的 profile 隔離方案，不要鎖死一個 image。
+
+人接手多半是 captcha、2FA、第一次登入、付款。Agent 在原 channel 丟**正確 project** 的 VNC 連結；人做完，同一個 session 繼續。
+
+Kasm 參考實作在意的點：Mac／Win／iPad 上 VNC 能打中文；image 共用、profile 分 volume；CDP 不要裸奔到未授權網路；Bitwarden 可強制裝，解不解锁、存不存密碼仍看 project 規則。
+
+## 9. 密碼怎麼放
+
+兩種都支援，預設建議前者：
+
+1. **Browser 不存密碼**，人用密碼管理器 autofill，cookie 可留。新站第一次要人進。  
+2. **密碼／vault 長期在隔離 volume**。方便，主機與 vault 防護要更嚴。  
+
+Agent 不准讀出、印出 vault 內容，也不准把 secret commit 進 Git。以後若接 vault API，再另定權限與稽核。
+
+**真人角色**（信箱、Lark、vault 帳號）跟 **bot 的 browser 設定**（CDP、VNC、volume）是兩層。交接角色、換密碼、重建 container 可以分開做；不要把「採購這個人」跟「採購那個 chrome volume」當成同一個帳號概念。
+
+## 10. 資料邊界（建議切法）
+
+- research：公開資料、比價  
+- dev：code、issue、PR  
+- it：infra、部署、排障  
+- business／ops：ERP、報價、客戶；更嚴  
+
+敏感內容優先本地；真要送外部模型就先摘要或遮。Lark bot 的事件 scope、OpenAPI scope、能進哪些群，能小就小。
+
+## 11. 併發、額度、掛了怎麼辦
+
+多 bot 吃訂閱，日常痛點是同時 session 數跟 rate limit。
+
+- 每個 project 可限 concurrent；滿了就排隊或拒，並講清楚。  
+- 額度用完可以降級：排隊、換已授權的其他 runtime、或只准讀／草稿。  
+- 短 Lark 任務是否插隊長研究，由部署決定。
+
+掛掉時：
+
+- runtime 死了 → 能 resume 就 resume，否則在原 channel 講失敗，不要裝成功。  
+- CDP 斷了 → 停 browser 步驟，給正確 VNC。  
+- Lark webhook 重送 → request 要能幂等，同一 action 別外發兩次。  
+- Git 推一半 → 附 branch／PR 狀態，別回「做完了」。  
+- 寫入後驗不過 → 標哪段沒驗。
+
+## 12. 安裝（v1 預期）
+
+環境：Ubuntu LTS、Docker、Node 20+、已登好的 code agent CLI。
+
+大致步驟：查環境 → 裝 channel router／Lark CLI／browser → 選 Lark 和／或 Web → 建 project（runtime、目錄、工具、browser）→ 設 App／OIDC，secret 只進 host → 起 browser 與 VNC → 註冊 service → 用低風險流程走一輪 request → PR → 批准。
+
+### 參考部署怎麼對
+
+| 概念 | 你可能用什麼 |
 |---|---|
-| 同 project 驗證 | 使用該 project 的 BrowserProvider／API credential，不借其他 project 的 browser |
-| 失敗要明講 | 驗證不了時，回報必須說明哪段未驗證，不得裝成已完成 |
-| 紀錄 | 寫入類 action record 應能關聯驗證結果或未驗證原因 |
+| private Git | Forgejo／GitHub／Gitea |
+| 登入 | Authentik 或任意 OIDC |
+| IM | Lark（其他之後再接） |
+| Web 工作台 | 產品自己的；參考實作可對 cc-connect 類 |
+| router | cc-connect 那類 bridge，前面可加 gateway |
+| browser | Kasm Chrome、BrowseForge… |
+| runtime | Claude Code、Codex、或其他對得上 §6 的 |
 
-## 8. BrowserProvider 與人工接手
+OSSLab 現況只是其中一種拼法。
 
-BrowserProvider 是執行資源，不是身份或授權本身。每個 project 應定義：
+### Lark App
 
-- provider 與版本，例如 Kasm Chrome、BrowseForge 或其他兼容實作；
-- profile / volume 隔離等級；
-- CDP 或 Playwright 接入點；
-- VNC 或其他 human takeover 方式；
-- 可登入系統與工具 allowlist；
-- download、cookie 與 profile 的 retention / cleanup 規則。
+要 App ID／Secret、callback／事件訂閱、最小 scope。一鍵 launcher 只是省事，scope 跟 secret 保管還是要檢查。Secret 不進 example config、commit、issue、聊天、截圖。
 
-預設 browser 實作可以是基於 Kasm 的 Chrome 容器：完整 Chrome、持久 profile、CDP 對外、web VNC、中文輸入與可選 Bitwarden extension。BrowserProvider contract 必須容許使用 BrowseForge 等既有 profile-isolation provider，而不將產品鎖死於單一 image。
+![Lark 建 App launcher 示意（不是唯一路徑）](assets/img_1778392141449_0.jpg)
 
-人類接手主要用於 captcha、OTP / 2FA、首次登入、付款及其他需要真人判斷的步驟。agent 應在原 channel 提示並提供正確 project 的接手入口；人完成後，agent 再在同一 session 續作。
+## 13. v1 做與不做
 
-### 8.1 Kasm Chrome reference image
+**做：** Ubuntu LTS + Docker + Node 20+；Lark + Web；至少一種 CLI runtime 與 browser；project 隔離；Git 當正本；基本批准與寫入後驗證；tools 按 project 白名單。
 
-Kasm Chrome 是預設 provider 的 reference image，而非唯一實作。其目標是讓 AI 與人操作同一台完整 browser，不是用 headless browser 或另開遠端桌面取代登入態。
+**可選：** orchestrator runtime、domain 共用 browser、比較完整的排隊 UI。
 
-| 能力 | reference 實作方向 |
-|---|---|
-| 中文輸入 | 提供 fcitx-chewing、傳統桌面輸入法與必要的鍵盤注入設定，讓 Mac、Windows 與 iPad 的 VNC 使用者可輸入中文 |
-| 輕量與持久化 | image 層共用；每個 profile 以 volume 保存 cookie、擴充、書籤與下載檔 |
-| Web 接手 | KasmVNC 讓使用者從一般 browser 直接進入，不要求另裝遠端桌面 client |
-| CDP | Chrome debug port 預設只在容器內可見時，以受控 relay 對 project 暴露 CDP；不可公開暴露給未授權網路 |
-| 密碼管理 | 可由 managed policy 安裝 Bitwarden extension，但是否解鎖、是否保存密碼仍由 project security policy 決定 |
-
-## 9. 密碼與 browser profile 策略
-
-產品提供兩種可選策略：
-
-| 策略 | 做法 | 取捨 |
-|---|---|---|
-| 不保存密碼 | browser 不存密碼；人類在 VNC 以 Bitwarden auto-fill，cookie 可保留 | 安全性高，但每個新網站需要人工首次登入 |
-| 長期保存於隔離 profile | browser / vault 狀態存於專屬 volume | 操作方便，但需更嚴格主機、vault 與網路防護 |
-
-預設推薦不保存密碼但使用密碼管理器。agent 不得讀取、輸出或把 vault secret 寫入 Git；未來如整合 vault API，必須額外定義最小權限、批准與 audit。
-
-### 9.1 角色身份與 browser 配置分離
-
-真人角色身份與 bot / browser 配置是兩層不同的東西：
-
-- 真人角色可以有自己的私有 email、Lark 身份與 password-vault 身份；這是可交接的責任身份。
-- 對外長期聯絡可使用共享收件匣，但每個實際寄件者應有可辨識的身份與簽名。
-- bot / BrowserProvider profile 只是 CDP、VNC、volume、cookie 與下載檔的執行配置；它不可自行取得真人角色的所有權限。
-
-這個區分可讓人員交接、密碼輪替與 browser 重新建立各自進行，也避免把個人身份、共享 inbox 與 agent profile 混為同一個帳號。
-
-## 10. 資料與工具邊界
-
-每個 project 指定資料來源、可用工具、保留策略與外送規則。建議最低分為：
-
-- research：公開 research、比價、來源整理。
-- dev：程式碼、issue、PR、技術設計。
-- it：infra、主機、部署與排障。
-- business / ops：ERP、報價、採購與客戶聯絡，採用更嚴格權限。
-
-敏感資料可只進本地檔案、本地向量索引或本地 LLM。外部模型需要處理敏感內容時，先摘要、遮蔽或只傳必要片段。Lark Bot 的事件 scope、OpenAPI scope、可加入群組及可呼叫使用者也應採最小權限。
-
-## 11. 併發、額度與失敗
-
-訂閱制 multi-bot 的日常風險是 concurrent session 與 rate limit，不是單次 prompt 寫法。
-
-| 項目 | 產品期望 |
-|---|---|
-| 併發 | 每 project 可設 max concurrent session；超出時排隊或拒絕並回明確錯誤 |
-| 額度 | 訂閱額度耗盡時可降級（排隊、改其他已授權 runtime、或只允許讀取／草稿） |
-| 優先序 | 可選：短 Lark action 優先於長 research（由部署策略決定） |
-
-### 11.1 失敗與接手
-
-| 情況 | 預期 |
-|---|---|
-| Runtime session 中斷 | 若契約支援則 resume；否則在原 channel 回失敗摘要，不靜默假裝成功 |
-| CDP／browser 斷線 | 停止依賴 browser 的步驟；提示正確 project 的 VNC 或重連 |
-| Lark webhook 重複／亂序 | request 具 idempotent id；同一 action 不重複外發 |
-| 半套 Git 變更 | 不回報「已完成」；附 branch／PR 狀態與下一步 |
-| 寫入後驗證失敗 | 依 §7.3 明講未驗證段落與建議人工檢查點 |
-
-## 12. 安裝與部署
-
-v1 目標環境是 Ubuntu LTS、Docker、Node 20+，以及已完成登入的受支援 code agent CLI。
-
-預期安裝流程：
-
-1. 檢查 Linux、Docker、Node 與 code agent runtime。
-2. 安裝 channel router、Lark CLI 與必要 browser provider。
-3. 選擇 Lark、Web workbench 或兩者入口。
-4. 建立 project，配置 runtime、work directory、channel identity、tool 與 browser policy。
-5. 視入口設定 Lark App 或 OIDC client；secret 只進 host secret store。
-6. 建立 browser profile 與 VNC human takeover。
-7. 註冊 service，初始化 project workspace。
-8. 以低風險流程驗證 request、branch、PR、approval 與 artifact link。
-
-### 12.1 Reference deployment 對照
-
-OSSLab 的既有部署是 **reference deployment**，不是所有使用者都必須複製的服務拓撲。概念對可替換元件：
-
-| 產品概念 | 可替換實例（示例） |
-|---|---|
-| private Git | Forgejo / GitHub / Gitea |
-| Identity provider | Authentik 或任意 OIDC |
-| Channel | Lark adapter；其他 IM 可後續接 |
-| Web workbench | 產品 workbench；reference 可對應 cc-connect 類 web channel |
-| Channel router / session bridge | cc-connect-class bridge；可加 gateway 前置 |
-| BrowserProvider | Kasm Chrome / BrowseForge / 兼容實作 |
-| Runtime Provider | Claude Code CLI / Codex CLI / 其他契約相容 runtime |
-
-### 12.2 Lark App 設定
-
-啟用 Lark channel 時，安裝流程需要取得 App ID 與 App Secret、設定 callback / event subscription，並只申請工作流所需的最小 scope。Lark 的一鍵 launcher 可作為建立自建 App 的捷徑，但不免除 scope、可用範圍、callback 與 secret 保管的檢查；截圖僅為示例 UI，不是唯一安裝路徑。
-
-App Secret 只應進 host secret store 或私有 environment；不得出現在 config example、commit、issue、聊天紀錄或 browser screenshot。
-
-![Lark intelligent-agent launcher：填入名稱後建立 App，再回到安裝流程填入 App ID 與 App Secret（示例 UI）](assets/img_1778392141449_0.jpg)
-
-## 13. 範圍與暫不處理
-
-### 13.1 v1 納入（契約層）
-
-- Ubuntu LTS + Docker + Node 20+。
-- Lark channel + Web workbench 入口。
-- 至少一種 Runtime Provider（訂閱制 code agent CLI）與 BrowserProvider。
-- Project 隔離、Git-first artifact、最小 action policy、寫入後驗證期望。
-- Skills／MCP 的 project allowlist（作為 tools surface）。
-
-### 13.2 v1 可選
-
-- Orchestrator runtime（多 worker 互審）。
-- Domain-shared browser profile。
-- 併發／額度排隊策略的進階 UI。
-
-### 13.3 暫不處理
-
-- 非 Ubuntu OS。
-- 完整多租戶管理與視覺化營運後台。
-- 所有非首批 runtime 的正式支援保證。
-- 本地 LLM 的完整部署包。
-- GPU 加速與音訊。
-- code agent CLI 認證與 API key 生命週期管理。
-- 跨產品角色同步、SCIM 或自動提權。
-- 排程／自主 cron 任務的完整產品化（若部署，須用 machine identity 與更嚴 action policy；v1 不保證）。
-- 大型獨立 audit database；v1 可先以 Git artifact 與 action record 關聯落地。
+**不做（v1）：** 非 Ubuntu、大管理後台／多租戶、保證支援所有 CLI、整包本地 LLM、GPU／音訊、代管 CLI 登入與 API key 生命週期、跨產品 SCIM 自動提權、完整 cron 自主任務產品、獨立大 audit DB（先用 Git + action 紀錄湊）。
 
 ## 14. License 與相關專案
 
-本 repo 的 osslab-agent 與 browser image 薄層採 MIT License。Kasm Chrome、cc-connect、Lark CLI、Claude Code CLI、Codex CLI、Playwright 與 Bitwarden 各自遵循原專案的授權條款；本 repo 不重新分發它們。
+本 repo 的薄層 MIT。Kasm、cc-connect、Lark CLI、Claude Code、Codex、Playwright、Bitwarden 各走原授權，這裡不重新打包它們。
 
-相關專案：
-
-- Larksuite / 飛書
-- Lark CLI
-- cc-connect
-- Claude Code
-- Codex CLI
-- Playwright
-- Kasm Chrome
-- Bitwarden
+相關：Larksuite／飛書、Lark CLI、cc-connect、Claude Code、Codex CLI、Playwright、Kasm Chrome、Bitwarden。
