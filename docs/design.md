@@ -12,8 +12,8 @@
 
 OSSLab-agent 的判斷很直接：**把人留在一個已經每天使用的 Lark Suite workspace，把複雜性留在後端。**
 
-- 每位同事以自己的 Lark 企業帳號工作，不共用人員帳密。
-- 每個工作角色／project 的 agent session、browser profile、bot identity 與可用工具分開；多人可以同時使用，狀態不互相污染。
+- 每位同事以自己的 Lark 企業帳號工作，這也是 SSO 身分；不共用人員帳密。
+- **每位同事都有自己的專屬 agent**。agent session、browser profile、bot identity、project context 與可用工具分開；同事 A、B 的 agent 可以有完全不同的能力與工作範圍，也不會互相污染。
 - Lark 是唯一的人員入口；`cc-connect`、訂閱制 code agent、MCP、瀏覽器與內網服務都在後端協作。
 - 同一份企業身分可延伸到 Cloudflare Access、NetBird、RustDesk、Termix 與其他核准服務，讓登入體驗一致又容易回收。
 
@@ -70,21 +70,21 @@ SSO 是「確認你是誰」，不是「給你所有權限」。每個服務依�
 
 # 4. Agent Server：人只在 Lark，後端才處理 session 與工具
 
-一台 AI Agent Server 承載多個隔離的 agent session。`cc-connect` 是跨訊息通道與 session bridge：接到 Lark 的事件後，依群組、使用者、角色或 project 路由到正確的 runtime；結果、草稿或需要人工決策的事項再回寫 Lark。
+一台 AI Agent Server 承載多個隔離的 agent session。它由 `cc-connect` 加上一組 Codex、Grok 等訂閱制 agent build 組成；`cc-connect` 是跨訊息通道與 session bridge，接到 Lark 的事件後，依同事、群組與 project 路由到正確的專屬 agent；結果、草稿或需要人工決策的事項再回寫 Lark。
 
 ```text
 Lark 群組／私訊／Mail／Base／Forms
           ↓ Lark 事件、API、訊息卡片
 cc-connect（routing + session bridge）
           ↓
-AI Agent Server：各 project／角色的隔離 session
+AI Agent Server：每位同事的專屬 agent／隔離 session
           ↓
-Claude Code CLI／Codex CLI + MCP + lark-cli
+Codex／Grok 等訂閱制 agent build + MCP + lark-cli
           ↓
 受限資料來源、隔離 Chrome 容器、內網服務
 ```
 
-Claude Code CLI、Codex CLI 或其他 code agent runtime 負責推理與工具決策；OSSLab-agent 不重做模型框架，而是管理多人路由、session 隔離、Lark 互動、瀏覽器接手與稽核。對人來說，這仍是 Lark 裡的一個 bot 或工作流程，而不是另一個必須學會的聊天網站。
+Codex、Grok 等訂閱制 code agent runtime 負責推理與工具決策；OSSLab-agent 不重做模型框架，而是管理多人路由、session 隔離、Lark 互動、瀏覽器接手與稽核。**這套架構只使用訂閱制 runtime**：相對於純 API 按量計價，成本差異很大且更難預估，因此不採 OpenClaw 或 Hermes 這類需要自行承擔 API 用量的 agent 架構。對同事來說，這仍是 Lark 裡的一個專屬 agent，而不是另一個必須學會的聊天網站。
 
 ## 4.1 工作如何落地
 
@@ -110,19 +110,27 @@ OSSLab-agent 不要求每個團隊先買或先導入完整 ERP。對表單驅動
 agent 依授權讀寫資料，重要寫入仍回 Lark 審核
 ```
 
-# 6. 權限、人工接手與資料邊界
+# 6. 專屬 agent 的 Chrome 與 Vaultwarden：本人解鎖後才可使用
+
+每位同事的專屬 agent 都有獨立的 Chrome profile，使用該同事對應的 Web 身分；這讓 agent 能在已授權的工作情境中協助操作，而不是借用別人的登入態。
+
+Chrome 採用本 repo 維護的[修改版 KasmVNC Chrome 容器](../docker/chrome/README.md)：以 `kasmweb/chrome` 為 base，加入繁中輸入法、受控的 CDP relay 與 Bitwarden policy，並且不把 profile、cookie、登入狀態或 vault 資料寫進 image。真人與 agent 看的是同一個 browser session，真人可隨時接手。
+
+第一次使用或 vault 已鎖定時，**同事本人必須先在 KasmVNC 裡解鎖 Vaultwarden**。agent 只能在已解鎖的工作階段中使用已允許的登入資料完成操作；它不會取得、保存或輸出 Vaultwarden 的主密碼。工作結束或不需使用時應重新鎖定。
+
+# 7. 權限、人工接手與資料邊界
 
 AI agent 能讀信、查表、操作瀏覽器，因此必須先把可做與不可做寫清楚。
 
 | 原則 | 做法 |
 | --- | --- |
 | **每個人有自己的身分** | Lark 帳號與 SSO 是人員身分；不以共享帳密代替人員管理。 |
-| **每個 agent 有自己的邊界** | role／project 分開 session、Lark app scope、資料來源、browser profile、vault collection 與工作目錄。 |
-| **秘密最小化** | Vaultwarden 中人與 AI 分帳號、分 collection；AI 只經 API／CLI helper 取得白名單秘密欄位，人類用密碼管理外掛。 |
+| **每個 agent 有自己的邊界** | 一人一個專屬 agent；session、Lark app scope、資料來源、browser profile、vault collection 與工作目錄都隔離，能力可依人設定不同。 |
+| **Vaultwarden 兩條路徑分開** | 瀏覽器登入由同事本人先解鎖自己的 extension；agent runtime 若需要服務秘密，才用自己的受限 API／CLI helper 讀取白名單 collection。任何 agent 都不能取得 human master password。 |
 | **高風險動作可停** | 對外寄送、付款、刪除、改權限、第一次登入與不確定例外，先在 Lark 等人確認或由真人接手。 |
 | **過程可回看** | 請求、草稿、確認與結果留在 Lark 或受控 project 記錄；部署與程式變更則留在 Forgejo。 |
 
-# 7. 技術元件與責任
+# 8. 技術元件與責任
 
 | 元件 | 角色 |
 | --- | --- |
@@ -130,25 +138,26 @@ AI agent 能讀信、查表、操作瀏覽器，因此必須先把可做與不�
 | **[Authentik](https://github.com/goauthentik/authentik)** | 統一身分驗證與 OIDC SSO 中心。 |
 | **[Cloudflare Access](https://developers.cloudflare.com/cloudflare-one/)** | 指定公開 Web 服務的外層存取政策與 SSO。 |
 | **[NetBird](https://github.com/netbirdio/netbird)** | SSO 登入的 VPN／內網存取層。 |
-| **[Forgejo](https://forgejo.org/)** | 自架 Git：程式、部署設定、操作與開發記錄的可追溯正本。 |
-| **AI Agent Server + [cc-connect](https://github.com/chenhg5/cc-connect)** | 多人 Lark 事件的跨訊息通道、project routing 與隔離 session。 |
-| **Claude Code CLI／Codex CLI** | 可替換的訂閱制 code agent runtime。 |
+| **[Forgejo](https://forgejo.org/)** | 自架 Git：程式、部署設定、操作與開發記錄的可追溯正本。只有管理者可用 Git 調整每個專屬 agent 的特性、能力、工具與權限。 |
+| **AI Agent Server + [cc-connect](https://github.com/chenhg5/cc-connect)** | 多人 Lark 事件的跨訊息通道；一台 server 承載每位同事的專屬 agent 與隔離 session。 |
+| **Codex／Grok 等訂閱制 agent build** | 唯一採用的 agent runtime；以訂閱制成本運行，不採 OpenClaw／Hermes 的純 API 用量架構。 |
 | **Lark Base／Forms** | Airtable 類型的結構化資料、表單、視圖與工作流程自動化。 |
 | **[Odoo 18 Community Edition](https://github.com/odoo/odoo)** | 可選 ERP connector；流程需要完整 ERP 時才納入。 |
-| **[Vaultwarden](https://github.com/dani-garcia/vaultwarden)** | 人與 AI 分權的密碼管理；人用外掛，AI 走受限 API／helper。 |
+| **[Vaultwarden](https://github.com/dani-garcia/vaultwarden)** | 人先在專屬 KasmVNC Chrome 解鎖自己的 vault；AI 的服務秘密則走受限 API／helper，兩者不混用。 |
 | **[lejianwen/rustdesk-server](https://github.com/lejianwen/rustdesk-server)** | 自架 RustDesk server／API，處理 IT 遠端維護與有期限的分享。 |
 | **[Termix](https://github.com/Termix-SSH/Termix)** | 自架 SSH／遠端桌面管理入口。 |
-| **Chrome + CDP + Playwright + KasmVNC** | AI 與真人可接手的真實瀏覽器執行層，登入態依 bot／工作流隔離。 |
+| **[修改版 KasmVNC Chrome](../docker/chrome/README.md) + CDP + Playwright** | 本 repo 維護的真實瀏覽器執行層，含繁中輸入、CDP relay 與 Bitwarden policy；每位同事與其專屬 agent 使用獨立登入態。 |
 
-# 8. Scope 與暫不處理
+# 9. Scope 與暫不處理
 
 - 不提供第二個給同事日常使用的聊天 UI；人員工作入口就是 Lark Suite。
 - 不假設每個團隊都需要 Odoo；Base／Forms 是可先上線的預設流程層。
 - 不把人類 master password、銀行、個人 2FA、cookie、profile、資料庫或 token 放進 agent 可讀設定或公開 repo。
 - 不讓 agent 預設自行完成付款、對外承諾、刪除資料或改權限。
-- 非 Claude Code CLI／Codex CLI 的 runtime、完整本地 LLM 套件與視覺化管理後台可後續擴充，但不改變 Lark-first 原則。
+- 不採 OpenClaw、Hermes 或純 API 按量計價的 agent 架構；runtime 只採 Codex、Grok 等訂閱制 agent build。
+- 完整本地 LLM 套件與視覺化管理後台可後續擴充，但不改變 Lark-first 原則。
 
-# 9. License & related projects
+# 10. License & related projects
 
 - 本 repo（OSSLab-agent 文件與 Chrome 容器薄層）：[MIT License](../LICENSE)
 - Lark Suite：[產品頁](https://www.larksuite.com/)／[開放平台](https://open.larksuite.com/document/)

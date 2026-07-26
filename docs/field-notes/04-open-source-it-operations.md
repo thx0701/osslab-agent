@@ -25,17 +25,17 @@ Authentik：統一身分驗證與 SSO 中心
 | 元件 | 在我們架構中的角色 |
 | --- | --- |
 | **[Forgejo](https://forgejo.org/)** | 自架 Git 平台。程式、部署設定、文件與操作／開發紀錄都以 repository、commit、branch、PR 的方式留下可追溯變更；它不是只拿來放原始碼。 |
-| **AI Agent Server** | 一台專用的 agent server 承載多個隔離的工作角色與 session。各角色共享核准的知識與工具，但瀏覽器 profile、bot identity、project context 與工作目錄分開，避免資料和登入狀態串在一起。 |
-| **[cc-connect](https://github.com/chenhg5/cc-connect)** | AI agent 的跨訊息通道：把 Lark 事件、訂閱制 code agent 與各 project 的 session routing 接起來。它負責把任務送到對的工作角色、回傳進度與請求人工介入；對同事不會另外露出第二個聊天 UI。 |
+| **AI Agent Server** | 一台專用 server 承載每位同事的專屬 agent。每個 agent 的 session、browser profile、bot identity、project context 與能力設定都可不同，避免資料和登入狀態串在一起。 |
+| **[cc-connect](https://github.com/chenhg5/cc-connect)** | AI agent 的跨訊息通道：把 Lark 事件路由到對應同事的專屬 agent，再回傳進度與人工介入請求；對同事不會另外露出第二個聊天 UI。 |
 | **[Odoo 18 Community Edition](https://github.com/odoo/odoo)** | **選配 ERP connector**。日常表單與流程可先由 Lark Base／Forms 承接；只有需要完整 ERP 控管時才接入 Odoo CE。現有客製以社群版加自有 addons 持續調整，AI 可協助高頻率改碼、測試與驗證，因此不把企業版授權當成改流程的必要前提。 |
 
 ## 密碼與遠端維護
 
 | 範圍 | 元件 | 在整體中的位置 |
 | --- | --- | --- |
-| agent runtime | Claude Code CLI、Codex CLI 等訂閱制 code agent | 負責推理、規劃與工具決策；這一層可替換，並非自行重寫模型框架。 |
-| 真實網站操作 | Chrome 容器、CDP、Playwright、KasmVNC | 提供隔離的登入狀態；真人可接手與 agent 同一個瀏覽器工作階段。 |
-| 密碼管理 | [Vaultwarden](https://github.com/dani-garcia/vaultwarden) | 人類直接使用瀏覽器／桌面密碼管理外掛；AI 則以各自的帳號與 API／CLI helper，在執行時讀取自己 collection 中被白名單允許的秘密欄位。AI 不共用 human vault，也不能瀏覽整座密碼庫。 |
+| agent runtime | Codex、Grok 等訂閱制 code agent build | 只採訂閱制，避免純 API 用量成本；不採 OpenClaw 或 Hermes 架構。 |
+| 真實網站操作 | [OSSLab-agent 修改版 KasmVNC Chrome](../../docker/chrome/README.md)、CDP、Playwright | 以 Kasm Chrome 為 base 的修改版，含繁中輸入、CDP relay 與 Bitwarden policy。每位同事／agent 有自己的 profile，真人可接手同一個瀏覽器工作階段。 |
+| 密碼管理 | [Vaultwarden](https://github.com/dani-garcia/vaultwarden) | 同事先在自己的 KasmVNC Chrome 解鎖 Vaultwarden，專屬 agent 才能在該 session 使用登入資料，永遠不取得主密碼；服務秘密另以受限 API／CLI helper 讀取。 |
 | 遠端維護 | [lejianwen/rustdesk-server](https://github.com/lejianwen/rustdesk-server) | 自架 RustDesk server／API，處理 IT 遠端維護與短期分享需求。 |
 | SSH／遠端桌面維護 | [Termix](https://github.com/Termix-SSH/Termix) | 自架的 SSH 與遠端桌面管理入口，供主機維護與連線管理使用。 |
 
