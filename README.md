@@ -35,6 +35,8 @@ Lark 群組／私訊／Mail／Base／Forms
        結果、草稿、審核全部回到 Lark
 ```
 
+實際上，agent 可整理客服信箱詢價、依 Base 表單分派需求、比較報價、查詢 Base／Odoo 的庫存與客戶狀態，或在網站操作到需要人判斷的步驟再通知接手。完整情境見[〈多人 AI agent 應用〉的工作如何落地](docs/field-notes/01-ai-agent-applications.md#工作如何落地)。
+
 ## 文件
 
 - 完整架構：[docs/design.md](docs/design.md)
