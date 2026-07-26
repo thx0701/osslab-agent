@@ -2,7 +2,9 @@
 
 > **狀態：OSSLab 正在測試上線中。** 現階段先公開架構與可公開的 Chrome 容器；後續預定釋出可重放的 patch file 與安裝／部署 plan，讓人或 AI agent 都能依步驟完成安裝，而不必從零猜測環境差異。
 
-一套自架的**多人 AI agent 與 SSO 協同架構**。同事只使用 **Lark Suite**：在群組、私訊、Mail、Base 與表單裡交辦工作、讀信、看進度與確認草稿；`cc-connect`、訂閱制 code agent、資料工具與隔離 Chrome 容器都在後端運作。
+**Lark Suite 是給企業團隊使用的 IM 與協作平台**：除了群組、私訊，也整合文件、試算表、信箱、表單、資料流程與審核，讓團隊在一個 workspace 裡溝通和做事。
+
+OSSLab-agent 是一套自架的**多人 AI agent 與 SSO 協同架構**。同事只使用 Lark Suite：在群組、私訊、Mail、Base 與表單裡交辦工作、讀信、看進度與確認草稿；AI agent 則像虛擬同事一樣，在同一個工作流程接任務、執行、回報並等待確認。`cc-connect`、訂閱制 code agent、資料工具與隔離 Chrome 容器都在後端運作。
 
 它不是再做一個 AI 聊天網站。Lark 是唯一的人員工作入口，也是企業身分的起點：同一個帳號經 Authentik／OIDC 延伸到 Cloudflare Access、NetBird、RustDesk、Termix 與其他核准服務。登入順暢，權限仍按服務與角色分開管理。
 

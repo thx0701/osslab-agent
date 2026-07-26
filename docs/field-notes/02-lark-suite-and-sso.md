@@ -1,6 +1,8 @@
 # 02 · Lark Suite、Mail、Base 與 SSO：一個工作入口
 
-OSSLab-agent 對團隊成員只提供一個入口：**Lark Suite**。這不是限制功能，而是避免工作散落在聊天軟體、信箱、表單工具、AI 網頁與各種帳密之間。Lark 已經把這些日常需要的工作面放在同一個 workspace；Docs、Sheet 與 Wiki 也提供類似 Google Docs／Microsoft Office 的線上文件、試算表與知識協作，AI agent 只需要接進去，而不必把人拉到另一個 UI。
+**Lark Suite 是企業團隊使用的 IM 與協作平台**：它從群組、私訊開始，但也把文件、試算表、信箱、表單、資料流程與審核放進同一個 workspace。AI agent 時代，它不只是「傳訊息給 bot」的地方；agent 可以像虛擬同事一樣，在同一個團隊流程接任務、處理、回報與等待確認。
+
+因此 OSSLab-agent 對團隊成員只提供一個入口：Lark Suite。這不是限制功能，而是避免工作散落在聊天軟體、信箱、表單工具、AI 網頁與各種帳密之間。Docs、Sheet 與 Wiki 也提供類似 Google Docs／Microsoft Office 的線上文件、試算表與知識協作，AI agent 只需要接進去，而不必把人拉到另一個 UI。
 
 ## 為什麼 Lark 不是「只拿來聊天」
 
