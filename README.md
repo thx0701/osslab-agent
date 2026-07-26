@@ -29,6 +29,20 @@ osslab-agent 不是再做一套 openclaw / harmes 那種自研 agent framework�
 ## 文件
 
 - 完整設計：[`docs/design.md`](docs/design.md)
+- 從實際營運出發的四篇說明：[`docs/field-notes/`](docs/field-notes/README.md)
+
+## 不是只有架構圖：目前怎麼用
+
+這個專案不把 AI agent 寫成萬能自動化的展示。實際上，agent 先在 Lark 接到可追蹤的任務；長研究與資料整理留在 cc web；需要登入、付款或送出外部訊息時，才由人類審核或接手同一個瀏覽器工作階段。
+
+Lark Suite 也是既有團隊協作與身分入口：企業帳號經 Authentik 與 OIDC 串接自架服務，Cloudflare Access 保護指定的公開 Web 服務，NetBird 提供 SSO 連線的內網存取。除 agent 工作流外，IT 維護使用的 RustDesk 與 Termix 也已納入同一條 SSO 路徑；帳號不必在每個維護系統各自建立、各自回收。詳情與技術邊界見下列四篇文章。
+
+| 主題 | 說明 |
+| --- | --- |
+| [01 · AI agent 應用](docs/field-notes/01-ai-agent-applications.md) | 從交辦、研究到真人接手，AI 如何進到真實工作流。 |
+| [02 · Lark Suite 與 SSO](docs/field-notes/02-lark-suite-and-sso.md) | 為何 Lark 不只是聊天工具，而是協作、資料與身分入口。 |
+| [03 · 管理與治理](docs/field-notes/03-agent-governance.md) | 如何分權、審核、留痕與避免上下文混用。 |
+| [04 · 自架平台與 IT 維護](docs/field-notes/04-open-source-it-operations.md) | 身分、VPN、Git、ERP、密碼庫、Agent Server、RustDesk／Termix 如何分工。 |
 
 ## License
 

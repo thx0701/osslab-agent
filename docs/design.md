@@ -26,17 +26,9 @@ osslab-agent 的解法是把工作拆成三層：
 
 # 2. 為什麼 Larksuite 仍是關鍵行動層
 
-osslab-agent 把 channel 抽象出來，**v1 的行動與審核層鎖定 Larksuite (飛書國際版)**，因為它是當代最好的**免費 / 付費**「團隊協作 IM」。Lark 很適合承接短任務、通知、人工審核、群組稽核與文件協作，但不把它當成唯一入口，也不把 IM 訊息流當成主要知識庫。
+osslab-agent 把 channel 抽象出來，**v1 的行動與審核層仍以 Larksuite（飛書國際版）為中心**；原因不是要把它包裝成「又一套聊天軟體」，而是團隊本來就把它用作協作與企業身分入口。群組／私訊／線程適合交辦、通知、人工審核與稽核；Docs、Sheet、Base、Mail、Calendar 與開放平台則讓同一條工作流能把資料、文件與行動接起來。[Lark 開放平台](https://open.larksuite.com/document/) 也提供 bot、事件、訊息卡片與各項工作資料的 API，這正是 agent 能安全落在團隊既有工作面的原因。
 
-| 能力 | 為什麼強 |
-|---|---|
-| **IM** | 群組 / 私訊 / 線程 / 視訊全包，介面比 Slack 直觀，比 Teams 輕 |
-| **雲端文件** | Docx / Sheet / Base / Whiteboard / Slides 全套，多人即時協作不打架 |
-| **免費 Email Server** | 自有網域信箱，整合在同一個 app 裡（這在現代 Team IM 裡幾乎絕跡） |
-| **行事曆 / 會議** | 會議自動轉妙記、AI 摘要、待辦自動建 |
-| **免費額度** | 20 人以下完全免費，免費 Email Server + 線上文件 100G 容量 新創 / 中小團隊零成本 |
-| **OpenAPI** | 所有功能都有完整 API，這就是讓 AI agent 接管的入口 |
-| **Bot 平台** | 事件訂閱（WebSocket long-link）、訊息發送、互動卡片、權限分級全都有，bot 能力在當代 IM 裡屬於頂級 |
+但 Lark 不是唯一入口，更不應被當成全部的知識庫：長研究、來源、版本與 project context 應保留在 cc web；需要決策或執行時才回到 Lark。這個選擇、既有 Lark SSO，以及 RustDesk／Termix 維護服務的關係，另見[〈Lark Suite 與 SSO〉](field-notes/02-lark-suite-and-sso.md)。Lark 的方案與額度會調整，應以[官方產品頁](https://www.larksuite.com/)為準。
 
 ## 2.1 Lark Sheet / Base 可直接作為輕量進銷存主場
 
@@ -203,9 +195,15 @@ chrome 容器 (kasmweb/chrome 改造版, --remote-debugging-port)
 | 元件 | 角色 | 提供方 |
 |---|---|---|
 | **Larksuite + 開放平台** | 行動與審核層（IM / Docs / Mail / Calendar），建 bot、開 scope、訂事件、WebSocket 推訊息 | 外部（免費 / 付費） |
+| **[Authentik](https://github.com/goauthentik/authentik) + OIDC** | 統一身分驗證／SSO 中心：以 Lark 企業帳號為人員入口，向自架服務提供標準身分 | 自架 |
+| **[Cloudflare Access](https://developers.cloudflare.com/cloudflare-one/)** | 指定公開 Web 服務的外層存取政策與 SSO；不取代應用程式本身的權限控制 | 外部服務 + 自架 IdP |
+| **[NetBird](https://github.com/netbirdio/netbird)** | 以 SSO 登入的 VPN／內網存取層，減少把管理面直接暴露在公開網路 | 自架／受控網路 |
 | **cc web** | cc-connecter 改版的正式 web 對話入口，支援 stream、圖片、檔案、長研究任務、project context 與 artifact 整理 | 本架構核心入口 |
-| **cc-connect** | channel router + code agent session bridge；把 Lark、cc web、project context 對應到合適 session（基於 [chenhg5/cc-connect](https://github.com/chenhg5/cc-connect) 擴展） | 外部 npm + 本架構 patch |
+| **cc-connect / AI Agent Server** | AI agent 的跨訊息通道與 session bridge；一台 agent server 依 project 對應 runtime、work directory、bot identity 與 CDP port | 外部 npm + 本架構 patch |
 | **Claude Code CLI / Codex CLI** | 訂閱制 code agent runtime（用個人 / 團隊訂閱合法使用）— 真正的 AI agent 大腦 | 外部（建議訂閱制） |
+| **[Forgejo](https://forgejo.org/)** | 自架 Git 平台：程式、設定、操作與開發記錄的可追溯正本 | 自架 |
+| **[Odoo 18 Community Edition](https://github.com/odoo/odoo)** | ERP 主體；以自有 addons 因應客製流程，AI 輔助快速開發、測試與驗證 | 自架 + 客製 |
+| **Vaultwarden** | 人與 AI 分帳號／collection 的密碼管理；人用外掛，AI 經受限 API／helper 取最小必要秘密 | 自架 |
 | **本地 LLM / 私有檢索** | 用於敏感內容、內部文件摘要、低成本或離線查詢 | 可選擴展 |
 | **lark-cli** | Lark API 的 CLI 封裝（agent 操作 Lark 的工具箱） | 外部 npm |
 | **Playwright MCP** | 把 CDP 包成 MCP tool，Claude 透過它 navigate / click / fill / screenshot | 外部 npm |
