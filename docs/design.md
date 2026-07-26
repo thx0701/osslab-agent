@@ -6,6 +6,8 @@
 
 **Lark Suite 是企業團隊使用的 IM 與協作平台**：它不只有群組與私訊，還有文件、試算表、信箱、表單、資料流程與審核。OSSLab-agent 讓 AI agent 進入這個既有的協作環境，像虛擬同事一樣接任務、執行、回報與等待確認，而不是另開一個孤立的 AI 聊天網站。
 
+綜合 IM、Mail、文件、Base／Forms、審核、Open Platform 與企業身分，OSSLab 的架構選擇很明確：**Lark Suite 是辦公團隊最適合的 AI bot channel**。它讓 bot 共用團隊既有的對話、資料、文件與審核脈絡，也讓身分、權限與協作紀錄有同一個起點。
+
 這個 repo 是公開的架構與部署基礎，不公開主機、帳號、secret、瀏覽器 profile、cookie 或業務資料。OSSLab 正在測試上線中；後續會將可公開的環境差異整理為 patch file，並釋出有前置條件、安裝、驗證與回復步驟的 plan，讓人或 AI agent 都能沿著同一個可重放流程部署。
 
 # 1. 要解決的不是「AI 不夠多」，而是多人工作不能各自為政

@@ -6,6 +6,8 @@
 
 OSSLab-agent 是一套自架的**多人 AI agent 與 SSO 協同架構**。同事只使用 Lark Suite：在群組、私訊、Mail、Base 與表單裡交辦工作、讀信、看進度與確認草稿；AI agent 則像虛擬同事一樣，在同一個工作流程接任務、執行、回報並等待確認。`cc-connect`、訂閱制 code agent、資料工具與隔離 Chrome 容器都在後端運作。
 
+綜合 IM、Mail、文件、Base／Forms、審核、Open Platform 與企業身分這些辦公團隊真正需要的功能，**OSSLab 的結論是：Lark Suite 是最適合做 AI bot channel 的工作入口**。bot 不必另開一個聊天網站，而是能直接進入團隊原本的對話、資料、文件與審核脈絡，成為可被管理的虛擬同事。
+
 它不是再做一個 AI 聊天網站。Lark 是唯一的人員工作入口，也是企業身分的起點：同一個帳號經 Authentik／OIDC 延伸到 Cloudflare Access、NetBird、RustDesk、Termix 與其他核准服務。登入順暢，權限仍按服務與角色分開管理。
 
 ## 核心原則
