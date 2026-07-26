@@ -126,7 +126,8 @@ AI agent 能讀信、查表、操作瀏覽器，因此必須先把可做與不�
 | --- | --- |
 | **每個人有自己的身分** | Lark 帳號與 SSO 是人員身分；不以共享帳密代替人員管理。 |
 | **每個 agent 有自己的邊界** | 一人一個專屬 agent；session、Lark app scope、資料來源、browser profile、vault collection 與工作目錄都隔離，能力可依人設定不同。 |
-| **Vaultwarden 兩條路徑分開** | 瀏覽器登入由同事本人先解鎖自己的 extension；agent runtime 若需要服務秘密，才用自己的受限 API／CLI helper 讀取白名單 collection。任何 agent 都不能取得 human master password。 |
+| **KasmVNC 操作對同事可見** | agent 進行網站操作時，同事可在自己的[修改版 KasmVNC Chrome](../docker/chrome/README.md)即時看見同一個 browser session，並可隨時暫停或接手。 |
+| **Vaultwarden 由本人解鎖** | 網站登入前由同事在 KasmVNC Chrome 解鎖自己的 extension；agent 只在目前已解鎖的 session 使用被允許資料。agent runtime 若需要服務秘密，才用自己的受限 API／CLI helper 讀取白名單 collection。任何 agent 都不能取得 human master password。 |
 | **高風險動作可停** | 對外寄送、付款、刪除、改權限、第一次登入與不確定例外，先在 Lark 等人確認或由真人接手。 |
 | **過程可回看** | 請求、草稿、確認與結果留在 Lark 或受控 project 記錄；部署與程式變更則留在 Forgejo。 |
 
