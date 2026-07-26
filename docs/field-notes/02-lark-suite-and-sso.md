@@ -1,6 +1,6 @@
 # 02 · Lark Suite、Mail、Base 與 SSO：一個工作入口
 
-**Lark Suite 是企業團隊使用的 IM 與協作平台**：它從群組、私訊開始，但也把文件、試算表、信箱、表單、資料流程與審核放進同一個 workspace。AI agent 時代，它不只是「傳訊息給 bot」的地方；agent 可以像虛擬同事一樣，在同一個團隊流程接任務、處理、回報與等待確認。
+**Lark Suite 是企業團隊使用的 IM 與協作平台**：不論 app 或 web，它從群組、私訊開始，但也把文件、試算表、信箱、表單、資料流程與審核放進同一個 workspace。即使採免費方案，企業 IM、可自動化的 Base、文書協作、Mail／通知都能先集中；搭配 Authentik 後，這個 workspace 也成為 SSO 的身分基礎與 AI agent 的協作 channel。AI agent 時代，它不只是「傳訊息給 bot」的地方；agent 可以像虛擬同事一樣，在同一個團隊流程接任務、處理、回報與等待確認。
 
 考量 IM、Mail、文件、Base／Forms、審核、Open Platform 與企業身分的完整性，OSSLab 認為 **Lark Suite 是辦公團隊最適合的 AI bot channel**：agent 能進入既有對話、資料與審核流程，而不是要求團隊再適應另一個 AI 網站或把工作內容複製出去。
 
