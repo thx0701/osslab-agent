@@ -13,7 +13,7 @@
 | 交辦、進度與審核 | 群組、私訊、線程與互動卡片把任務、草稿、確認與結果留在大家本來就在看的地方。 |
 | 多個工作信箱 | 個人企業信箱與部門公用信箱在同一個 Lark Mail 環境使用；agent 只讀取被授權的 mailbox，協助整理與草擬，不把 email 轉存到另一套工具。 |
 | 文件與工作資料 | Docs、Sheet、Wiki 提供多人文件、試算表與知識協作；Base、Forms 則把需求、資料與流程放在同一個 workspace。 |
-| 自動化與系統串接 | Open Platform 的 bot、事件、訊息卡片與 API 讓 agent 能從 Lark 收任務，也把結果回寫 Lark。 |
+| 自動化與系統串接 | Open Platform 的 bot、事件、訊息卡片與 API 讓 agent 能從 Lark 收任務，也把結果回寫 Lark；官方 [lark-cli](https://github.com/larksuite/cli) 則把 Messenger、Docs、Base、Sheets、Mail 等常用操作提供給人員與 AI agent 使用。 |
 
 Lark Mail 支援公用信箱由多人共同使用，也可將郵件工作與群組協作接起來；這正好符合客服、採購、業務等部門信箱情境。Lark 現行免費方案提供可自訂的商務 Email；以自有網域建立個人與多個部門／功能性信箱後，每個 Lark 企業帳號就能成為 Authentik SSO 的身分依據，而不是再發一組共用帳密。實際可用功能、帳號與信箱額度依 [Lark 現行方案](https://www.larksuite.com/global/register) 為準；[Lark Mail 官方介紹](https://www.larksuite.com/en_us/product/email)可作為功能參考。
 

@@ -8,12 +8,14 @@ OSSLab-agent 不把 AI 做成另一個要下載、學習與維護的聊天網站
 
 ```text
 同事 A 的 Lark 任務 → A 的專屬 agent ─┐
-同事 B 的 Lark 任務 → B 的專屬 agent ─┼→ cc-connect + Agent Server → 工具／Chrome
-部門群組的任務     → 指定專屬 agent ──┘                              ↓
-                                                        結果、草稿、審核回 Lark
+同事 B 的 Lark 任務 → B 的專屬 agent ─┼→ cc-connect + lark-cli + Agent Server → 工具／Chrome
+部門群組的任務     → 指定專屬 agent ──┘                                         ↓
+                                                                   結果、草稿、審核回 Lark
 ```
 
 這讓採購、客服、業務、研究與 IT 能在同一個協作環境裡各自使用 agent，同時避免某一個人的對話、cookie 或內部資料意外帶到另一個工作流。
+
+[lark-cli](https://github.com/larksuite/cli) 是 Lark 官方維護、為人員與 AI agent 設計的 CLI。它把 Messenger、Docs、Base、Sheets、Mail、Tasks 等常用工作面做成一致的命令與 agent skills，讓後端 agent 能以受控權限讀寫 Lark 資料、把結果送回正確的工作脈絡。
 
 ## 不只收訊息，也能處理工作信箱與表單
 

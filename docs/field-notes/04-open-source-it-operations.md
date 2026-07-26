@@ -27,6 +27,7 @@ Authentik：統一身分驗證與 SSO 中心
 | **[Forgejo](https://forgejo.org/)** | 自架 Git 平台。程式、部署設定、文件與操作／開發紀錄都以 repository、commit、branch、PR 的方式留下可追溯變更；它不是只拿來放原始碼。 |
 | **AI Agent Server** | 一台專用 server 承載每位同事的專屬 agent。每個 agent 的 session、browser profile、bot identity、project context 與能力設定都可不同，避免資料和登入狀態串在一起。 |
 | **[cc-connect](https://github.com/chenhg5/cc-connect)** | AI agent 的跨訊息通道：把 Lark 事件路由到對應同事的專屬 agent，再回傳進度與人工介入請求；對同事不會另外露出第二個聊天 UI。 |
+| **[lark-cli](https://github.com/larksuite/cli)** | Lark 官方維護、為人員與 AI agent 設計的 CLI。agent 透過它以受控權限操作 Messenger、Docs、Base、Sheets、Mail、Tasks 等 Lark 工作面，再由 cc-connect 把任務與結果接回對的對話脈絡。 |
 | **[Odoo 18 Community Edition](https://github.com/odoo/odoo)** | **選配 ERP connector**。日常表單與流程可先由 Lark Base／Forms 承接；只有需要完整 ERP 控管時才接入 Odoo CE。現有客製以社群版加自有 addons 持續調整，AI 可協助高頻率改碼、測試與驗證，因此不把企業版授權當成改流程的必要前提。 |
 
 ## 密碼與遠端維護

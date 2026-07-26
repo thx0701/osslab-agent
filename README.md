@@ -4,7 +4,7 @@
 
 **Lark Suite 是給企業團隊使用的 IM 與協作平台**：除了群組、私訊，也整合文件、試算表、信箱、表單、資料流程與審核，讓團隊在一個 workspace 裡溝通和做事。
 
-OSSLab-agent 是一套自架的**多人 AI agent 與 SSO 協同架構**。同事只使用 Lark Suite：在群組、私訊、Mail、Base 與表單裡交辦工作、讀信、看進度與確認草稿；AI agent 則像虛擬同事一樣，在同一個工作流程接任務、執行、回報並等待確認。`cc-connect`、訂閱制 code agent、資料工具與隔離 Chrome 容器都在後端運作。
+OSSLab-agent 是一套自架的**多人 AI agent 與 SSO 協同架構**。同事只使用 Lark Suite：在群組、私訊、Mail、Base 與表單裡交辦工作、讀信、看進度與確認草稿；AI agent 則像虛擬同事一樣，在同一個工作流程接任務、執行、回報並等待確認。`cc-connect`、[lark-cli](https://github.com/larksuite/cli)、訂閱制 code agent、資料工具與隔離 Chrome 容器都在後端運作。
 
 綜合 IM、Mail、文件、Base／Forms、審核、Open Platform 與企業身分這些辦公團隊真正需要的功能，**OSSLab 的結論是：Lark Suite 是最適合做 AI bot channel 的工作入口**。bot 不必另開一個聊天網站，而是能直接進入團隊原本的對話、資料、文件與審核脈絡，成為可被管理的虛擬同事。
 
@@ -26,7 +26,7 @@ OSSLab-agent 是一套自架的**多人 AI agent 與 SSO 協同架構**。同事
 ```text
 Lark 群組／私訊／Mail／Base／Forms
                   ↓
-        cc-connect + AI Agent Server
+  cc-connect + lark-cli + AI Agent Server
                   ↓
  Codex／Grok 等訂閱制 runtime + 受限工具／資料
                   ↓
@@ -39,7 +39,6 @@ Lark 群組／私訊／Mail／Base／Forms
 
 ## 文件
 
-- 完整架構：[docs/design.md](docs/design.md)
 - 從實際營運出發的四篇文章：[docs/field-notes/](docs/field-notes/README.md)
 
 | 主題 | 說明 |

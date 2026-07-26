@@ -9,4 +9,4 @@
 | [03 · 管理與治理](03-agent-governance.md) | 多個 agent 怎麼分工、授權、審核與留痕？ |
 | [04 · 自架平台與 IT 維護](04-open-source-it-operations.md) | 身分、VPN、Git、密碼庫、Agent Server、Odoo 選配與維護服務怎麼組成一個可維護的底座？ |
 
-完整的元件與通訊架構仍在 [`../design.md`](../design.md)；這裡只說明設計背後的實際工作情境與邊界。
+這四篇文章共同說明 OSSLab-agent 的元件、通訊架構、實際工作情境與治理邊界。
