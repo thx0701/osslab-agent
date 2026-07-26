@@ -4,7 +4,7 @@
 > **OSSLab-agent 的人員工作入口只有 Lark Suite。**
 > 同事不需要在另一個 AI 網頁、另一組信箱或另一套帳密之間切換：在 Lark 群組、私訊、信箱、Base 與表單裡交辦工作；agent 在後端執行研究、讀取核准範圍內的資料、產出草稿，必要時再由真人接手瀏覽器。登入自架服務時，則以同一個 Lark 企業帳號走 SSO。
 
-這個 repo 是公開的架構與部署基礎，不公開主機、帳號、secret、瀏覽器 profile、cookie 或業務資料。
+這個 repo 是公開的架構與部署基礎，不公開主機、帳號、secret、瀏覽器 profile、cookie 或業務資料。OSSLab 正在測試上線中；後續會將可公開的環境差異整理為 patch file，並釋出有前置條件、安裝、驗證與回復步驟的 plan，讓人或 AI agent 都能沿著同一個可重放流程部署。
 
 # 1. 要解決的不是「AI 不夠多」，而是多人工作不能各自為政
 
@@ -19,37 +19,37 @@ OSSLab-agent 的判斷很直接：**把人留在一個已經每天使用的 Lark
 
 # 2. 為什麼只使用 Lark Suite
 
-這不是因為 Lark 只有聊天，而是它把多人協作需要的工作面放在一起：群組與私訊、Docs、Sheet、Base、Forms、Calendar、Approval、Mail 與 Open Platform。對同事而言，不必另外安裝一個「AI 工作台」；對 agent 而言，則能在同一個有身分、權限與協作紀錄的地方收任務、回報結果與等待審核。
+這不是因為 Lark 只有聊天，而是它把多人協作需要的工作面放在一起：群組與私訊、Docs、Sheet、Base、Forms、Calendar、Approval、Mail 與 Open Platform。Docs、Sheet 與 Wiki 提供類似 Google Docs／Microsoft Office 的線上文件、試算表與知識協作；對同事而言，不必另外安裝一個「AI 工作台」；對 agent 而言，則能在同一個有身分、權限與協作紀錄的地方收任務、回報結果與等待審核。
 
 | 工作面 | 在 OSSLab-agent 的用途 |
 | --- | --- |
 | **群組／私訊／線程** | 交辦、通知、進度、草稿確認、例外處理與人工審核。 |
 | **Lark Mail** | 人員信箱與部門公用信箱都留在 Lark；agent 依授權讀取來信、整理重點、建立待辦與草擬回覆。對外寄送仍保留人工確認。 |
-| **Docs／Wiki／Sheet** | 對人可讀的文件、規則、報表與協作資料。 |
-| **Base／Forms** | 用表單收集資料、用多維表格管理流程與自動化；資料改變時可通知人或交給 agent 處理。 |
+| **Docs／Wiki／Sheet** | 類似 Google Docs／Microsoft Office 的多人文件、知識庫、報表與試算表協作層。 |
+| **Base／Forms** | 不是 XLS 附件，而是可自動化的多維表格與資料流程：外圍客戶填表、人員與 agent 依欄位共同更新，事件可通知、分派或交審。庫存、訂單與簡單出貨紀錄都能先在這裡做成輕量 ERP 流程。 |
 | **Open Platform** | bot、事件、訊息卡片與 API，讓 agent 不離開 Lark 就能把結果放回正確的群組、文件或資料表。 |
 
 Lark Mail 的價值不只是「有一個收信畫面」。它能把個人工作信箱與多個部門公用信箱放在同一套協作環境；被授權的 agent 可處理收件、分類、摘要與草稿，讓客服、採購或業務不必把 email 另外搬到一個 AI 工具。Lark 對公用信箱與跨裝置郵件使用的功能說明見[官方 Mail 介紹](https://www.larksuite.com/en_us/product/email)。
 
-## 2.1 Base 與表單：不是 Excel 附件，而是輕量工作流程
+## 2.1 Base 與表單：不是 Excel 附件，而是人、agent 與客戶連動的資料流程
 
-Lark Base 的定位接近 Airtable：可把一張資料表做成格狀、看板、日曆、表單等不同工作視圖，再用 automation 串通知與後續處理。它很適合先承接詢價、庫存、客戶、採購、維修、表單收件與待辦流程，而不必一開始就部署完整 ERP。
+Lark Base 的定位接近 Airtable：可把資料做成格狀、看板、日曆、表單等不同工作視圖，再用 automation 串通知、分派、審核與後續處理。它不是傳統 XLS 檔，而是一個讓外圍客戶填表、團隊成員處理、AI agent 更新與比對、管理者核准的連動架構；同一筆資料可以在不同角色之間有一致的欄位、狀態與紀錄。
 
 ```text
-Lark Form 收集需求
+外圍客戶／同事以 Lark Form 收集需求
         ↓
-Lark Base 建立／更新紀錄
+Lark Base 建立／更新訂單、庫存或出貨紀錄
         ↓ automation / bot event
-agent 整理、比對或建立草稿
+agent 整理、比對、補資料或建立草稿
         ↓
-Lark 群組、文件或待辦回報給人確認
+Lark 群組、文件或待辦通知團隊確認
 ```
 
-這不是要把所有資料都硬塞進同一張表；而是先用表單與結構化欄位把流程說清楚，讓人與 agent 都有可靠的輸入。可參考飛書官方的[ERP 資料同步到多維表格方案](https://www.feishu.cn/industry_solutions/integrate/111)；產品能力與限制仍以 [Lark Base 官方頁](https://www.larksuite.com/product/base) 為準。
+這不是要把所有資料都硬塞進同一張表；而是先用表單與結構化欄位把流程說清楚，讓人與 agent 都有可靠的輸入。詢價、庫存、訂單與簡單出貨紀錄都能先快速運作成輕量 ERP；真正需要會計、採購、銷售與交付的完整控管時，再接入 Odoo。可參考飛書官方的[ERP 資料同步到多維表格方案](https://www.feishu.cn/industry_solutions/integrate/111)；產品能力與限制仍以 [Lark Base 官方頁](https://www.larksuite.com/product/base) 為準。
 
 # 3. 多人 SSO：一個帳號，順暢登入，但權限不混在一起
 
-Lark 企業帳號是人員身分的起點；Authentik 將它以 OIDC 提供給自架服務。這讓同事在日常使用上是「同一個工作帳號、同一個登入脈絡」，而不是每接一套服務就建立另一組帳密。
+Lark 企業帳號是人員身分的起點；Authentik 將它以 OIDC 提供給自架服務。Lark 現行免費方案也提供可自訂的商務 Email，讓自有網域能建立個人與多個部門／功能性信箱；這些帳號正是 SSO 最需要的可靠身分依據。這讓同事在日常使用上是「同一個工作帳號、同一個登入脈絡」，而不是每接一套服務就建立另一組帳密；免費方案的功能與額度仍應以 [Lark 現行方案](https://www.larksuite.com/global/register) 為準。
 
 ```text
 同事的 Lark 企業帳號

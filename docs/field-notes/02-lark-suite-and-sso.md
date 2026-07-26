@@ -1,6 +1,6 @@
 # 02 · Lark Suite、Mail、Base 與 SSO：一個工作入口
 
-OSSLab-agent 對團隊成員只提供一個入口：**Lark Suite**。這不是限制功能，而是避免工作散落在聊天軟體、信箱、表單工具、AI 網頁與各種帳密之間。Lark 已經把這些日常需要的工作面放在同一個 workspace，AI agent 只需要接進去，而不必把人拉到另一個 UI。
+OSSLab-agent 對團隊成員只提供一個入口：**Lark Suite**。這不是限制功能，而是避免工作散落在聊天軟體、信箱、表單工具、AI 網頁與各種帳密之間。Lark 已經把這些日常需要的工作面放在同一個 workspace；Docs、Sheet 與 Wiki 也提供類似 Google Docs／Microsoft Office 的線上文件、試算表與知識協作，AI agent 只需要接進去，而不必把人拉到另一個 UI。
 
 ## 為什麼 Lark 不是「只拿來聊天」
 
@@ -8,20 +8,20 @@ OSSLab-agent 對團隊成員只提供一個入口：**Lark Suite**。這不是�
 | --- | --- |
 | 交辦、進度與審核 | 群組、私訊、線程與互動卡片把任務、草稿、確認與結果留在大家本來就在看的地方。 |
 | 多個工作信箱 | 個人企業信箱與部門公用信箱在同一個 Lark Mail 環境使用；agent 只讀取被授權的 mailbox，協助整理與草擬，不把 email 轉存到另一套工具。 |
-| 表單與工作資料 | Base、Sheet、Forms、Docs 與 Wiki 將需求、資料、文件與流程放在同一個 workspace。 |
+| 文件與工作資料 | Docs、Sheet、Wiki 提供多人文件、試算表與知識協作；Base、Forms 則把需求、資料與流程放在同一個 workspace。 |
 | 自動化與系統串接 | Open Platform 的 bot、事件、訊息卡片與 API 讓 agent 能從 Lark 收任務，也把結果回寫 Lark。 |
 
-Lark Mail 支援公用信箱由多人共同使用，也可將郵件工作與群組協作接起來；這正好符合客服、採購、業務等部門信箱情境。[Lark Mail 官方介紹](https://www.larksuite.com/en_us/product/email)與其公用信箱說明可作為功能參考。
+Lark Mail 支援公用信箱由多人共同使用，也可將郵件工作與群組協作接起來；這正好符合客服、採購、業務等部門信箱情境。Lark 現行免費方案提供可自訂的商務 Email；以自有網域建立個人與多個部門／功能性信箱後，每個 Lark 企業帳號就能成為 Authentik SSO 的身分依據，而不是再發一組共用帳密。實際可用功能、帳號與信箱額度依 [Lark 現行方案](https://www.larksuite.com/global/register) 為準；[Lark Mail 官方介紹](https://www.larksuite.com/en_us/product/email)可作為功能參考。
 
-## Base／Forms：Airtable 類型的表格，自動化流程的起點
+## Base／Forms：不是 XLS，是人、agent、團隊與客戶連動的自動化表格
 
-Lark Base 比較接近 Airtable 的工作方式，而不只是把 Excel 放到雲端：一份結構化資料可以用格狀、看板、日曆或表單視圖工作，再加上 automation、通知與權限。它適合先把客戶、詢價、庫存、採購、維修、任務與申請流程做成可靠的欄位與狀態。
+Lark Base 比較接近 Airtable 的工作方式，而不只是把 Excel 放到雲端：一份結構化資料可以用格狀、看板、日曆或表單視圖工作，再加上 automation、通知、權限與審核。外圍客戶透過 Form 送資料，團隊依欄位處理，AI agent 比對、補資料或觸發後續工作；每一筆紀錄都有共同的狀態與責任人。
 
 ```text
-表單提交 → Base 記錄 → automation／bot event → agent 處理 → Lark 通知／草稿／審核
+外圍客戶／同事填 Form → Base 記錄 → automation／bot event → agent 與團隊處理 → Lark 通知／草稿／審核
 ```
 
-因此，很多還在調整的流程不用一開始就上完整 ERP：先用 Base 把輸入、狀態、責任人與通知跑順，agent 才有清楚的資料可以讀寫。飛書官方也提供將 ERP 資料接入多維表格的[整合方案](https://www.feishu.cn/industry_solutions/integrate/111)；當流程需要完整 ERP 控管時，再把 Odoo 作為選配 connector 接上，而不是反過來讓所有工作都被 ERP 綁住。
+因此，很多還在調整的流程不用一開始就上完整 ERP：先用 Base 把輸入、狀態、責任人與通知跑順，agent 才有清楚的資料可以讀寫。即使是庫存、訂單與簡單出貨紀錄，也可以快速作為輕量 ERP 流程使用；當流程需要會計、採購、銷售與交付的完整控管時，再把 Odoo 作為選配 connector 接上，而不是反過來讓所有工作都被 ERP 綁住。飛書官方也提供將 ERP 資料接入多維表格的[整合方案](https://www.feishu.cn/industry_solutions/integrate/111)。
 
 ## SSO 讓多服務的登入保持順暢
 
