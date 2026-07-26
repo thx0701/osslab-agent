@@ -9,12 +9,12 @@
 ## 核心原則
 
 - **每位同事一個專屬 agent**：每位同事以自己的 Lark 企業帳號作為 SSO 身分，不共用人員帳密；專屬 agent 的 session、browser profile、bot identity、project context 與能力設定獨立，可依同事需求不同。
-- **只使用 Lark Suite**：訊息、文件、部門公用信箱、email 讀取、Base、表單、審核與 bot 都留在同一個 workspace；不要求團隊改用第二套聊天 UI。
+- **只使用 Lark Suite**：不論人員或 AI agent，訊息、文件、部門公用信箱、email 讀取、Base、表單、審核與 bot 都以同一個 workspace 作為協作與工作入口；不要求團隊改用第二套聊天 UI。
 - **Base／Forms 先行**：以 Airtable 類型的多維表格、表單與 automation 快速把流程跑起來。Odoo 是需要完整 ERP 控管時才接入的選配，不是架構前提。
 - **SSO 優先**：Lark → Authentik → Cloudflare Access／NetBird／維護服務，減少帳密散落與新人上手成本。
 - **只採訂閱制 agent runtime**：AI Agent Server 以 cc-connect 串接多個 Codex、Grok 等訂閱制 agent build；費用遠比純 API 計價可控，因此不採 OpenClaw 或 Hermes 這類需自行承擔 API 用量的架構。
 - **人先解鎖，agent 才接手**：專屬 agent 的 Chrome 使用對應同事的 Web 身分；本人先在 [OSSLab-agent 修改版 KasmVNC Chrome](docker/chrome/README.md) 解鎖 Vaultwarden，agent 才能在已解鎖的工作階段內協助操作，且永遠不取得主密碼。
-- **AI 可做事，也可停下來**：agent 產出查詢、整理與草稿；寄信、付款、刪除、改權限與例外情況保留人工確認或瀏覽器接手。
+- **AI 是可控的虛擬助理**：依授權，agent 可直接操作 ERP、讀取與回覆 email、上架、查訪價格，或執行其他辦公室工作流；權限也能細緻限制為查詢、整理或草稿。寄信、付款、刪除、改權限與例外情況仍可要求人工確認或由真人接手。
 
 ## 工作流
 
