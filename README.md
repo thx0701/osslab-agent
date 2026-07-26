@@ -52,6 +52,8 @@ Lark 群組／私訊／Mail／Base／Forms
 
 OSSLab 正在測試上線；現階段的文件描述已驗證的方向與尚在整理中的部署基礎。預定把可公開的環境差異整理成 **patch file**，把前置條件、安裝順序、驗證與回復方式整理成 **plan**，讓後續的人或 AI agent 可以照同一條可追溯的路徑部署，而不是重做一次猜測與手動設定。
 
+目前已先列出 [Kasm 使用者身分、CDP 邊界與 VNC secret 輪替 plan](plans/kasm-identity-cdp-and-secret-rotation.md)：先把可直接連到瀏覽器的風險收斂，再以 Authentik／Lark OIDC 平行驗證完整 Kasm Workspaces，讓「哪位同事、哪一個 browser session、哪一個 agent」可被可靠對應。
+
 ## License
 
 [MIT License](LICENSE)
