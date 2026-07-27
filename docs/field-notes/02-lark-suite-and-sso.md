@@ -17,6 +17,8 @@
 
 Lark Mail 支援公用信箱由多人共同使用，也可將郵件工作與群組協作接起來；這正好符合客服、採購、業務等部門信箱情境。Lark 現行免費方案提供可自訂的商務 Email；以自有網域建立個人與多個部門／功能性信箱後，每個 Lark 企業帳號就能成為 Authentik SSO 的身分依據，而不是再發一組共用帳密。實際可用功能、帳號與信箱額度依 [Lark 現行方案](https://www.larksuite.com/global/register) 為準；[Lark Mail 官方介紹](https://www.larksuite.com/en_us/product/email)可作為功能參考。
 
+就 **AI agent channel 的成本**：免費方案即可承載企業 IM、Mail、Base、文件與 bot 工作流——「能不能當 agent 入口」在免費層已成立。實務上免費層較常被感受到的限制是**對話紀錄保留約半年**；需要更長聊天歷史時，可評估 Basic 等付費方案（論主定錨約 **USD $6／人／月**，**以官方現行定價為準**）。這與 Slack 企業按人頭方案相比，並不是「貴到不能選」的門檻，而是依留痕深度升級。
+
 ## Base／Forms：不是 XLS，是人、agent、團隊與客戶連動的自動化表格
 
 Lark Base 比較接近 Airtable 的工作方式，而不只是把 Excel 放到雲端：一份結構化資料可以用格狀、看板、日曆或表單視圖工作，再加上 automation、通知、權限與審核。外圍客戶透過 Form 送資料，團隊依欄位處理，AI agent 比對、補資料或觸發後續工作；每一筆紀錄都有共同的狀態與責任人。
@@ -27,9 +29,9 @@ Lark Base 比較接近 Airtable 的工作方式，而不只是把 Excel 放到�
 
 因此，很多還在調整的流程不用一開始就上完整 ERP：先用 Base 把輸入、狀態、責任人與通知跑順，agent 才有清楚的資料可以讀寫。即使是庫存、訂單與簡單出貨紀錄，也可以快速作為輕量 ERP 流程使用；當流程需要會計、採購、銷售與交付的完整控管時，再把 Odoo 作為選配 connector 接上，而不是反過來讓所有工作都被 ERP 綁住。飛書官方也提供將 ERP 資料接入多維表格的[整合方案](https://www.feishu.cn/industry_solutions/integrate/111)。
 
-## SSO 讓多服務的登入保持順暢
+## SSO 是選 Lark 當 agent channel 的主因之一
 
-Lark 企業帳號也是人員身分的起點。Authentik 將這個身分以 OIDC 提供給自架服務，讓同事用同一個企業帳號自然地登入需要的工具，而不是每套服務都重建一份帳密。
+Lark 企業帳號也是人員身分的起點——**不是附屬福利**。Authentik 將這個身分以 OIDC 提供給自架服務，讓同事用同一個企業帳號自然地登入需要的工具，而不是每套服務都重建一份帳密。SSO 與 agent 權限仍是兩層（見 [03 · 治理](03-agent-governance.md)）：前者管「人是誰、能否登入」，後者管「agent 能代表誰做什麼」。
 
 ```text
 同事的 Lark 企業帳號
