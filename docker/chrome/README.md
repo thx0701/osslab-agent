@@ -10,22 +10,18 @@ It intentionally does not include:
 - `profile-seed.tar.zst`
 - local `docker-compose.yml` files
 
+## Pre-built image status
+
+**No pre-built image has been uploaded to a registry yet.**
+
+There is no published `docker pull` target (GHCR, Docker Hub, or otherwise).
+Build from this directory locally.
+
 ## Build
 
 ```bash
 cd docker/chrome
-docker build -t ghcr.io/thx0701/osslab-agent-chrome:latest .
-```
-
-## Push to GHCR
-
-```bash
-gh auth refresh -h github.com -s write:packages
-gh auth token | docker login ghcr.io -u thx0701 --password-stdin
-
-docker tag ghcr.io/thx0701/osslab-agent-chrome:latest ghcr.io/thx0701/osslab-agent-chrome:2026-06-14
-docker push ghcr.io/thx0701/osslab-agent-chrome:2026-06-14
-docker push ghcr.io/thx0701/osslab-agent-chrome:latest
+docker build -t osslab-agent-chrome:latest .
 ```
 
 Use per-container volumes for persistent browser state.
