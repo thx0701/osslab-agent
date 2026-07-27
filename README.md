@@ -47,7 +47,7 @@ Lark 群組／私訊／Mail／Base／Forms
 | [02 · Lark Suite、Mail、Base 與 SSO](docs/field-notes/02-lark-suite-and-sso.md) | 為何 Lark 是唯一工作入口，以及多信箱、表單、Base 與 SSO 如何接在一起。 |
 | [03 · 管理與治理](docs/field-notes/03-agent-governance.md) | 多人、多 agent 的分權、審核、留痕與資料隔離。 |
 | [04 · 自架平台與 IT 維護](docs/field-notes/04-open-source-it-operations.md) | 身分、VPN、Git、密碼庫、Agent Server、Odoo 選配與維護服務如何分工。 |
-| [05 · LarkSuite 作為 AI agent channel 的三方 review](docs/field-notes/05-larksuite-as-ai-agent-channel-review.md) | 回應 Slack vs Discord 框架：Email／SSO／Base 一步到位為何更適合 agent 團隊。 |
+| [05 · LarkSuite 作為 AI agent channel 的三方 review](docs/field-notes/05-larksuite-as-ai-agent-channel-review.md) | 回應 Slack vs Discord：先讀本 repo 再審；Email／SSO／Base 為何更適合 agent channel。 |
 
 ## 公開進度
 

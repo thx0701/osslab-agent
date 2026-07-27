@@ -1,393 +1,329 @@
-# 05 · LarkSuite 是 AI agent channel：對 Slack vs Discord 框架的三方 review
+# 05 · LarkSuite 是 AI agent channel：三方 review（讀過 repo 正本）
 
-> **性質**：公開論述 review，不是「某公司要不要換 IM」的內部選型單。  
-> **論主立場（thx0701／OSSLab）**：在**以 AI agent 推動的團隊**中，**LarkSuite 是最佳 AI agent channel**——評的是人與 agent 的工作入口，不是文章所述的 Slack／Discord 二選一。  
+> **性質**：公開論述 review，不是內部「要不要換 IM」選型單。  
+> **論主立場（thx0701／OSSLab）**：在**以 AI agent 推動的團隊**中，**LarkSuite 是最佳 AI agent channel**——評的是人與 agent 的工作入口，不是 Slack vs Discord 二選一。  
 > **對照來源**：[Slack vs Discord 中性評估 gist](https://gist.github.com/nczz/342c237cdd6ef1fb47c0e7cc79aaf73f)  
-> **Review 參與**：Grok 4.5 · GPT-5.6-Luna（Codex xhigh）· Kimi Code  
+> **本輪方法**：Grok 4.5、GPT-5.6-Luna、Kimi Code **先讀**公開 repo 正本（等同 [thx0701/osslab-agent](https://github.com/thx0701/osslab-agent/tree/main) 的 README、field-notes 01–04、docker/chrome、plans），**再**表態。  
+> **上一輪弱點**：曾只審抽象主張、未強制讀 repo；本文件**取代**那輪作為正本。  
 > **不含**帳密、內網位址、個資。
 
-## 論主立場（要審的主張）
+## 論主立場（審查對象）
 
-1. **Channel 視角，不是純 IM 視角**  
-   問的是：AI agent 如何被觸發、以誰的身分行動、結果如何回到人可審核的工作脈絡——不是誰比較適合語音掛機或社群貼圖。
+1. **Channel 視角，不是純 IM**  
+2. **一步到位**：Email、企業 SSO／身分、Lark 多維表格（Base）、IM、文件、日曆、任務同平台  
+3. **成本**：相對 Slack 按人頭企業方案，LarkSuite 不必然更貴；agent 密集時整合碎片化更貴  
+4. **Agent 操作性**：企業 bot、卡片、文件／表格／郵件 API、企業帳號治理 bot 身分  
+5. **原文框架不足**：漏掉 AI agent channel 適配；常駐語音不是首要軸心  
 
-2. **一步到位**  
-   Email、企業 SSO／身分、Lark 多維表格（Base／bitable）、IM、文件、日曆、任務可在同一平台串起；agent 不必把 Slack + Gmail + 外部表單 + 另一套文件拼成工作流。
-
-3. **成本**  
-   相對 Slack 按人頭的企業方案，LarkSuite **並不必然更貴**。對 agent 密集團隊，真正昂貴的是**整合碎片化**（多套 auth、多套權限、多套 webhook、多套留痕），不是授權標價 alone。
-
-4. **Agent 操作性**  
-   企業 bot、互動卡片、文件／表格寫入、郵件與日曆 API、以企業帳號治理 bot 身分——比 Discord 的個人帳號生態更適合「公司級 agent 艦隊」。
-
-5. **對原文框架的修正**  
-   原文軸心是整合代價／管理層級／語音模式／外部住哪，對「人與人協作」有用，但漏掉 **「AI agent channel 適配」**；常駐語音不是 agent 團隊的首要軸心。
-
-此立場與本 repo 既有敘述一致：見 [README](../../README.md)、[02 · Lark Suite、Mail、Base 與 SSO](02-lark-suite-and-sso.md)。
+與本 repo 敘述對齊：見 [README](../../README.md)、[02 · Lark Suite、Mail、Base 與 SSO](02-lark-suite-and-sso.md)。
 
 ---
 
-## 三方共識（Grok 彙整）
+## 本輪三方共識（Grok 彙整 · 以 repo 為準）
 
 | 項目 | 結果 |
 | --- | --- |
-| 表態 | **三方皆為有條件同意**論主立場（作為 *AI agent channel* 的主張） |
-| 最強論點 | 把比較單位從「聊天工具」重設為「人＋agent 的工作入口」；原文確實漏了這個維度 |
-| 核心同意 | Email ＋ 企業 SSO／身分 ＋ Base 多維表格 ＋ IM／文件 同租戶，降低 agent 拼裝成本 |
-| 必加限定 | 「最佳」須綁 **agent 驅動的辦公／營運團隊**；不是遊戲社群、純開源語音協作、或國際夥伴已全住 Slack 的外部協作場景 |
-| 對 Slack | 仍是強 IM／App 生態與 Connect；當 **agent 要深度寫入郵件／表格／審核** 時，往往仍要外接，碎片化上升 |
-| 對 Discord | 語音與社群強；**企業身分與治理弱**，不適合作公司級 agent 主 channel |
-| 成本敘事 | 「Lark 不一定更貴」合理；「碎片化成本 > 授權差」是可辯護直覺，公開表述宜當**總擁有成本**論，勿裝成已量化實證 |
-| 不該說成 | 「Lark 永遠完勝所有協作場景」或「請所有人立刻放棄 Slack」 |
+| 是否先讀 repo | **是**（附件含 README、field-notes 01–04、chrome README、kasm plan 等） |
+| 表態 | 三方皆 **有條件同意** 論主（在 *agent channel* 定義下） |
+| repo 是否支撐主張 | **支撐**：README 已把 Lark 定為 AI agent 協作 channel；工作流為 Lark 進／回 Lark 出（cc-connect + lark-cli） |
+| repo 比抽象口號更強處 | 每位同事專屬 agent、Mail／Base 落地、治理（人批准／agent 查整寫比）、Authentik SSO 延伸、訂閱制 runtime、Chrome 人先解鎖 |
+| 必須保留的限定 | field-notes 明寫「不是把尚未上線的構想當現況」；能力與額度依 Lark 方案；高風險動作要人確認 |
+| 成本論 | 「不必然更貴」合理；「碎片化 > 授權差」應當總擁有成本論，repo 未給量化表 |
+| 對 Slack／Discord | 以 repo 工作流比：缺 Mail+Base+企業 bot 同租戶時，難複製「虛擬同事」；Discord 尤不適公司 agent 艦隊 |
+| 對上一輪 05 | 未讀 repo → 少引用 cc-connect／lark-cli／專屬 agent／人先解鎖等可證設計；本輪已補 |
 
-**一句話可公開用的表述（建議稿）：**
+**建議對外一句話（綁 repo）：**
 
-> 若團隊要讓 AI agent 像虛擬同事一樣進入 **Email、身分、多維表格、文件與審核**，而不只是在聊天窗回一句話，LarkSuite 比 Slack／Discord 更適合當 **agent channel**。Slack vs Discord 的比較若缺這個軸心，對 agent 密集團隊是不完整的。
+> OSSLab-agent 公開架構把 Lark Suite 當成唯一人員工作入口：人在群組／Mail／Base 交辦，agent 經 cc-connect 與 lark-cli 執行後把草稿與審核送回同一 workspace。以「AI agent channel」評比時，這比只比較 Slack／Discord 的聊天與語音更貼近 agent 團隊的真實需求。
 
 ---
 
-## Grok 4.5 review
+## Grok 4.5 review（本輪 · 已讀 repo）
+
+### 我讀了什麼
+
+1. `README.md`：Lark 為企業 IM／協作平台，搭配 Authentik 成為 SSO 與 **AI agent 的協作 channel**；結論句寫明「最適合做 AI bot channel 的工作入口」。  
+2. `README.md` 工作流：Lark → cc-connect + lark-cli + Agent Server → 訂閱制 runtime → 隔離 Chrome／選配 Odoo → **結果回 Lark**。  
+3. `01-ai-agent-applications.md`：人只用 Lark；**每位同事專屬 agent**；Mail／Base 進工作流；「查整寫比」給 AI、「批准承諾付款例外」留給人。  
+4. `02-lark-suite-and-sso.md`：Mail、Base／Forms、審核與 SSO 一體；額度依方案。  
+5. `03-agent-governance.md`：多 agent 分權、最小權限、高風險可停、過程可回看；設定走 Git。  
+6. `04-open-source-it-operations.md`：Authentik、cc-connect、lark-cli、選配 Odoo 的底座分工。  
+7. `docker/chrome/README.md`：公開-safe Chrome 配方（無 profile／secret）。  
+8. `plans/kasm-identity-cdp-and-secret-rotation.md`：人／browser session／agent 可對應的身分邊界計畫。  
 
 ### 表態
 
 **有條件同意。**  
-在論主自己定義的問題——「AI agent 推動的團隊，哪個平台最適合作 channel」——LarkSuite 的主張站得住，且比把問題縮成 Slack vs Discord 更貼近 agent 實際工程。
+Repo 不是空喊「Lark 比較好」，而是把 **channel = 人機同一工作入口** 做成可描述的架構；在此定義下論主勝過 Slack／Discord 二選一。條件是：公開文件部分仍是「測試上線中／計畫中」的誠實邊界，主張應說「架構適配」而非「已全世界驗證完勝」。
 
-### 論證強度
+### 論主 vs repo
 
-| 論點 | 評 |
+| 論點 | repo 支撐 |
 | --- | --- |
-| Channel 視角 | **強**。原文是人－人 IM 框架；agent 還需要：觸發、身分、工具寫入、審批、留痕、撤權。 |
-| Email + SSO + Base 一步到位 | **強**。這三點合在一起才是 agent 的「工作物件面」；單比訊息歷史或語音會嚴重偏題。 |
-| 成本不必然更高 | **中強**。對中小團隊／可先用整合方案的情境成立；應寫「總擁有成本與拼裝成本」，避免空口「永遠比較便宜」。 |
-| 企業 bot 治理 vs Discord 個人帳號 | **強**（就公司 agent 艦隊而言）。 |
-| 反駁原文軸心 | **強**。語音常駐對 agent 主 channel 通常不是第一排序。 |
+| Channel 視角 | 強（README 第一段即 channel 定位） |
+| Email + SSO + Base | 強（02、README 核心原則） |
+| 成本 | 中（強調免費方案可起步、訂閱制 runtime；無對 Slack 的價差表） |
+| Agent 操作性 | 強（lark-cli、Base 事件、Mail 讀取、卡片／審核敘述） |
+| 反原文框架 | 強（語音非架構主軸；主軸是工作物件與治理） |
 
-### 作為 agent channel 的簡表
+缺口／勿誇大：實際部署成熟度（README 寫測試上線中）、Lark 方案額度、外部若強制 Slack Connect 仍可能要 sidecar。
 
-| | LarkSuite | Slack | Discord |
-| --- | --- | --- | --- |
-| 企業身分／SSO 與 bot 治理 | 產品內建企業帳號與 bot 模型 | 成熟（完整能力看方案） | 弱（帳號常屬個人） |
-| Email 同平台可程式化 | 強（Mail 與 IM 同 workspace） | 弱（多靠外接信箱） | 無 |
-| 多維表格／表單寫入 | 強（Base／Forms） | 弱（多靠外接） | 弱 |
-| 文件／任務／日曆同租戶 | 強 | 中（生態拼） | 弱 |
-| 聊天與 App 生態 | 中 | 強 | 社群 Bot 強 |
-| 語音常駐 | 會議型 | Huddle／會議型 | 強 |
-| 適合作「公司 agent 主 channel」 | **高**（論主場景） | 中（常要外接工作物件） | 低 |
+### 反方與表述
 
-### 反方怎麼打／怎麼回
-
-1. **「我們客戶都在 Slack Connect」** → 那是**外部協作通道**問題，可並存；不自動否定 Lark 當**內部 agent channel**。  
-2. **「Lark 地區／供應商政策不合」** → 合法硬限制；論主要承認 scope：主張的是 agent 工程適配，不是無視合規。  
-3. **「工程團隊只要 Git + Discord」** → 工作物件若幾乎全在 Git，IM 平台一體化優勢縮小；論主場景是**營運／郵件／表單／審核**驅動的 agent，不是純 repo bot。
-
-### 公開表述建議
-
-- 主詞固定為 **「AI agent channel」**，不要寫成「全世界最好的 IM」。  
-- 並列 **Email · SSO · Base** 三個可檢查的能力，而不是空泛「整合好」。  
-- 標註對照的是 *agent 密集、要動工作物件的團隊*；Discord 社群、Slack 外部 Connect 可以是 sidecar。
-
-### 不確定前提
-
-- 目標讀者的 Lark 方案層級（Mail／API 額度）是否足以支撐其 agent 密度。  
-- 是否已有不可替代的 Slack 外部生態依賴。  
-- 合規與資料駐留政策是否排除特定供應商。
+- 「只是換皮 Slack」→ 反：repo 把 Mail／Base／SSO／人審核鎖在同一入口，不是多一個 bot 頻道。  
+- 「沒有開源可跑完整包」→ 反：論述是 channel 適配與架構；完整 install plan 標為後續，不否定 channel 論。  
+- 公開表述用「最適合 **AI bot／agent channel**」，並列 Email·SSO·Base·人審核，避免「最佳 IM」。
 
 ---
 
-## GPT-5.6-Luna review（全文）
+## GPT-5.6-Luna review（本輪全文 · 已讀 repo）
 
-# 三方 Review：LarkSuite 是否是更適合 AI Agent 的 Channel
+# 1. 我讀了什麼
 
-## 1. 表態
+依附件 TREE 逐份閱讀 9 份公開 Markdown：
+
+1. `README.md`  
+   明確寫出「**OSSLab-agent 是一套自架的多人 AI agent 與 SSO 協同架構**」，並將 Lark 定義為「唯一的人員工作入口」。
+
+2. `docs/field-notes/README.md`  
+   核心警語是：「**這不是功能清單，也不是把尚未上線的構想當成現況。**」這是判讀整個 repo 的重要限制。
+
+3. `docs/field-notes/01-ai-agent-applications.md`  
+   設計是「**每位同事都有自己的專屬 agent**」，並以 `cc-connect + lark-cli + Agent Server` 路由任務；Mail、Base、表單及人工接手都在工作流內。
+
+4. `docs/field-notes/02-lark-suite-and-sso.md`  
+   寫明 Lark 不只是聊天，還涵蓋 Mail、Docs、Base／Forms、審核與 SSO；其中「**實際可用功能、帳號與信箱額度依 Lark 現行方案為準**」是成本與能力主張的必要限定。
+
+5. `docs/field-notes/03-agent-governance.md`  
+   最關鍵的治理句子是：「**SSO 和 agent 權限是兩件事**。」另有最小權限、Vaultwarden 本人解鎖、人工審核、Git 變更與留痕設計。
+
+6. `docs/field-notes/04-open-source-it-operations.md`  
+   將 `cc-connect` 定義為「AI agent 的跨訊息通道」，將 `lark-cli` 定義為操作 Messenger、Docs、Base、Sheets、Mail、Tasks 的受控 CLI；Odoo 則是選配 connector。
+
+7. `docs/field-notes/05-larksuite-as-ai-agent-channel-review.md`  
+   已讀其三方 review、條件式共識與限制。它自己也承認「最佳」必須綁定「**agent 驅動的辦公／營運團隊**」，而不是所有 IM 場景。
+
+8. `docker/chrome/README.md`  
+   公開安全邊界明確寫出不包含 profiles、cookies、Bitwarden vault data，且「**No pre-built image has been uploaded to a registry yet.**」
+
+9. `plans/kasm-identity-cdp-and-secret-rotation.md`  
+   文件標示「**規劃中，尚未變更現行服務**」。其中 `principal_id → agent_id → browser_session_id → task_id`、control lease、CDP 隔離與 secret 輪替，是目標架構，不應直接當成已完成能力。
+
+# 2. 表態
 
 **有條件同意。**
 
-若團隊的 AI agent 需要在企業身分、訊息、文件、表格、任務、日曆與郵件之間持續執行工作，且主要資料已集中於 LarkSuite，LarkSuite 確實比 Slack 或 Discord 更適合作為 agent channel；但這不是「所有場景都永遠勝出」的判斷。
+論主把比較單位從「聊天工具」提升為「人＋agent 的工作入口」，這個判準成立；但「最佳」只能適用於需要 Mail、SSO、Base、文件與人工審核的 agent 驅動辦公／營運團隊，不能泛化成所有團隊或所有 IM 場景。
 
-本文評的是「AI agent 與人協作的入口與治理邊界」，不是 OSSLab 是否要遷移 IM，也不是一般辦公聊天工具的排名。
+# 3. 論主主張 vs repo 現況
 
-## 2. 論證是否站得住
+| 論主主張 | repo 支撐 | 評價 |
+|---|---|---|
+| Channel 視角，不是純 IM | `README.md` 的工作流是「Lark 群組／私訊／Mail／Base／Forms → cc-connect + lark-cli → Agent Server → 結果、草稿、審核回 Lark」 | **強支撐**。這是 repo 最完整、最有辨識度的論點。 |
+| Email、SSO、Base 一步到位 | `02-lark-suite-and-sso.md` 把 Mail、Base／Forms、Docs、審核與 Authentik 串成同一 workspace | **方向成立，但「一步到位」偏強**。文件也承認方案額度與功能依 Lark 方案而異。 |
+| Lark 不必然比 Slack 貴 | repo 只提出「碎片化整合可能增加總成本」的架構直覺，沒有價格、工時、API 額度或 TCO 數據 | **可辯護但未證明**。應稱為 TCO 假說，不宜寫成量化結論。 |
+| 企業 bot／卡片／文件／表格／郵件 API 適合 agent 艦隊 | `01`、`02`、`04` 明確設計 `lark-cli`、Open Platform、Mail、Base、Docs 與人工審核 | **設計支撐強，實作證據不足**。repo 沒有展示完整 connector、scope、事件處理、錯誤重試或權限測試。 |
+| 原 gist 漏掉 agent channel 軸心 | `05` 將原文整理為整合成本、管理層級、語音與外部協作等軸線 | **批評方向成立**。但這代表比較框架不完整，不代表原文在其自身問題設定下錯誤。 |
+| Lark 是公司級 agent 主 channel | `03` 有專屬 agent、最小權限、人工接手與 Git 治理；`04` 有 Forgejo、cc-connect、lark-cli | **條件成立**。但 `plans/...` 顯示瀏覽器身分、control lease 與 CDP 邊界仍在規劃。 |
+| Lark 是目前已完成的完整落地方案 | `README.md` 說「正在測試上線中」；Chrome 沒有預建 image；Kasm plan 尚未變更現行服務 | **不成立，或至少表述過度**。目前較準確的說法是「公開中的架構方向與部分驗證成果」。 |
 
-### 2.1 「Channel」視角成立，而且是最強的論點
+總結而言，repo 最能證明的是「Lark 適合作為 agent channel 的架構理由」，不是「所有相關能力都已在生產環境完整運作」。
 
-原本 Slack vs Discord 的比較，主要以人類使用者為中心：訊息、頻道、語音、社群、外部協作與管理。
+# 4. 與 Slack／Discord 對照
 
-但 AI agent channel 還需要評估：
+判準應是 AI agent channel，而非一般聊天功能排名。
 
-- Agent 如何被觸發與喚起。
-- Agent 以誰的身分行動。
-- 人如何審批或修正 agent 的決策。
-- Agent 能否直接寫入任務、文件、表格與日曆。
-- 權限、稽核、撤權與資料留存如何處理。
-- 失敗、重試與結果通知是否可追蹤。
-
-因此，把比較單位從「聊天工具」提升為「人與 agent 的工作入口」，是合理且必要的框架修正。
-
-但「channel」不能只等同於聊天視窗。真正的 agent channel 應包含訊息介面、身分、權限、工具呼叫、資料落點與稽核機制。
-
-### 2.2 「一步到位」有道理，但不能說成零整合
-
-LarkSuite 的優勢在於同一套產品線包含 Messenger、Email、Calendar、Base、Docs、Tasks 等能力；Lark 官方也將機器人、文件、多維表格、任務與日曆列為可組合的工作流能力。[LarkSuite 方案](https://www.larksuite.com/en_us/plans?from=footer)、[Lark 機器人開發指南](https://open.larksuite.com/document/home/develop-a-bot-in-5-minutes/create-an-app)
-
-這能減少：
-
-- 跨產品的身分映射。
-- 跨系統的 API 認證。
-- 將訊息結果重新寫回另一個系統。
-- 使用者在多個工具之間切換。
-- Agent 需要維護多組 webhook、權限與事件模型。
-
-然而，企業通常仍有 ERP、CRM、Git、監控、雲端服務與模型供應商。LarkSuite 並不會消除所有整合，只是可能把「第一方協作資料」放在同一個治理邊界內。
-
-較精準的說法是：
-
-> LarkSuite 能降低第一方協作能力之間的整合摩擦，而不是讓所有外部系統都不需要整合。
-
-### 2.3 成本論點方向正確，但目前只能算假說
-
-真正的成本不只是使用者授權費，也包括：
-
-- Agent 與多個系統的整合開發。
-- 多套 OAuth、bot identity 與權限維護。
-- 稽核、資料留存與撤權。
-- 故障排查與跨系統重試。
-- 人員訓練與上下文切換。
-- 平台鎖定、資料匯出與備援成本。
-
-因此，「整合碎片化可能比授權價格更貴」是合理的 TCO 論點。
-
-但不能直接推導出 LarkSuite 必然更便宜。公開價格並非完全可比：LarkSuite 方案以整合套件計價，Slack 則依方案、使用者數、AI 與企業管理能力分級；目前公開頁面顯示 Lark 有免費與每人每月 6／12 美元的方案，Slack Pro 與 Business+ 年繳價格則分別標示為每人每月 7.25／15 美元，實際仍受地區、稅、合約與功能限制影響。[LarkSuite 方案](https://www.larksuite.com/en_us/plans?from=footer)、[Slack 定價](https://slack.com/pricing)
-
-因此公開表述應是：
-
-> LarkSuite 有機會以較低的整合 TCO 取得較完整的 agent 工作流，但必須以實際工作流、席次、API 限制、AI 使用量與治理需求計算，而不是只比較牌價。
-
-### 2.4 Agent 操作性是強論點，但「企業 bot 身分」需要精確描述
-
-Lark 的優勢包括：
-
-- 可建立企業自建應用與 bot。
-- 支援文字、富文字、檔案、互動卡片與事件訂閱。
-- 卡片元件可透過 callback 回應使用者操作。
-- 可依應用權限、可用範圍與資料權限治理。
-- 可將訊息操作串接到文件、Base、任務、日曆與其他企業流程。[Lark 訊息 API](https://open.larksuite.com/document/server-docs/im-v1/introduction)、[Lark 卡片回調](https://open.feishu.cn/document/uAjLw4CM/ukTMukTMukTM/event-subscription-guide/callback-subscription/callback-overview)、[Lark 應用鑑權](https://open.larksuite.com/document/home/introduction-to-scope-and-authorization/overview)
-
-這確實比「讓 agent 偽裝成某個人的個人帳號」更適合公司級 agent 艦隊。
-
-但必須避免暗示所有操作都能以單一企業 bot 身分完成。Lark 同時區分：
-
-- 以應用身分執行的 `tenant_access_token`。
-- 代表使用者授權的 `user_access_token`。
-
-部分日曆、郵件與使用者資料操作可能需要使用者身分或額外權限；Lark 官方權限文件也區分 App、User 與 App User 等授權範圍。[Lark Token 說明](https://open.larksuite.com/document/faq/trouble-shooting/how-to-choose-which-type-of-token-to-use)、[Lark API 權限列表](https://open.larksuite.com/document/ukTMukTMukTM/uYTM5UjL2ETO14iNxkTN/scope-list?fb=2&lang=en-US)
-
-所以應說：
-
-> LarkSuite 提供較完整的企業應用身分與權限治理模型，而不是所有 agent 都能無條件取得企業全域權限。
-
-### 2.5 「原文漏掉 AI agent channel」成立，但不應把其他軸線全部否定
-
-原文若只用整合數量、管理層級、語音與外部社群來比較 Slack 和 Discord，確實漏掉了 agent-first 團隊的重要維度。
-
-但語音、外部協作與管理能力仍然有價值：
-
-- 事故處理可能需要即時語音。
-- Agent 可能要服務客戶、開源社群或外部貢獻者。
-- 團隊可能已深度使用 Slack Connect 或既有 Slack app ecosystem。
-- Discord 的常駐語音可能是社群型 agent 的核心入口。
-
-因此應該是「增加 agent channel 適配度」，而不是宣稱原本的比較軸線已經失效。
-
-## 3. 作為 AI Agent Channel 的平台對照
-
-| 評估面向 | LarkSuite | Slack | Discord |
+| Agent channel 軸線 | LarkSuite／repo 工作流 | Slack | Discord |
 |---|---|---|---|
-| Agent 身分 | 企業自建應用、租戶身分、應用權限與使用者授權並存 | App、bot、OAuth、SSO／SCIM 與企業管理能力成熟 | 正規 bot 是獨立應用身分；以個人帳號自動化並不是正確模型 |
-| 人與 Agent 互動 | 互動卡片、callback、訊息事件、表單與工作台入口 | 訊息、thread、Block Kit、Workflow Builder、AI Apps | Slash command、button、select、modal、Gateway 或 HTTP interaction |
-| 內建資料落點 | Email、Calendar、Docs、Base、Tasks 等可在同一套件內串接 | 第三方 app 生態非常成熟，官方頁面列出超過 2,600 個整合 | 主要是訊息與社群層，業務資料通常要靠外部服務 |
-| Agent 寫入工作流程 | 適合「收到訊息 → 審批 → 寫 Base／Task／Calendar」 | 適合「訊息 → SaaS app／Workflow／企業系統」 | 適合「訊息 → bot 邏輯／外部 API」 |
-| 企業治理 | 應用審核、可用範圍、API scope、資料權限 | 企業安全、SSO、SCIM、稽核與第三方整合較成熟 | 以 server、role、channel permission 與 bot scope 為核心 |
-| 公開社群與常駐語音 | 不是主要強項 | 可支援，但不是核心優勢 | 強項，尤其適合社群、即時互動與常駐語音 |
-| 最適合的 agent 場景 | 企業內部 agent fleet、結構化工作流、審批與資料寫入 | 已有大量 SaaS 整合、跨組織協作、企業級工作流 | 公開社群 bot、開發者社群、遊戲或語音優先場景 |
+| 任務入口與路由 | Lark 訊息、Mail、Base、Forms → `cc-connect` → 專屬 agent | 可由 app、事件或 workflow 觸發，但本 repo 沒有 Slack adapter | 可由 bot、事件或 webhook 觸發，但本 repo 沒有 Discord adapter |
+| 工作物件 | `lark-cli` 明確涵蓋 Messenger、Docs、Base、Sheets、Mail、Tasks | App 生態強；若要把 Mail、表格、ERP、審核串成完整工作流，通常仍需選擇與維護外部整合 | Bot 與社群互動強，但不是本 repo 所需的 Mail／Base／企業文件工作面 |
+| 身分與 agent 治理 | Lark 企業帳號 → Authentik；另以 agent scope、Git 設定與工作流授權控管 | 企業身分與管理能力成熟，但必須看方案與實際整合方式 | 適合 bot／社群身分；對公司級 agent 艦隊的企業身分、工作物件與權限治理較不貼合本場景 |
+| 人工審核 | 草稿、互動卡片、群組、Base 或 Mail 回 Lark；寄信、付款、刪除、改權限等交回真人 | 可以實作審核，但 repo 沒有同等流程 | 可以實作確認按鈕或 bot 流程，但 repo 沒有同等治理設計 |
+| 瀏覽器與高風險操作 | KasmVNC Chrome、Vaultwarden 本人解鎖、control lease；`principal_id` 綁 agent、browser、task | 這屬於 agent control plane，不是 Slack 原生優勢；仍需另建 | 同樣需要另建，不能由 Discord bot 身分自然解決 |
+| 留痕與追溯 | Lark task／訊息／Base ID，加上 agent、browser、session 與授權紀錄 | 可依企業方案與外部系統整合，但本 repo 未實作 | 可保存訊息與 bot event，但不等於完整企業工作流稽核 |
+| 最適用情境 | agent 驅動的辦公、營運、客服、採購、表單、郵件與審核 | Slack Connect、既有 Slack 生態或工程協作依賴很重的團隊 | 社群、遊戲、語音與開源社群協作 |
 
-Slack 並不是單純的人類聊天工具。Slack 已提供 AI Apps、AI agent 入口、Workflow Builder、Slackbot、企業搜尋與大量第三方整合；官方文件也明確將 AI app 定位為可在 Slack 中與人對話並執行工作的應用。[Slack AI Apps](https://api.slack.com/docs/apps/ai)、[Slack 定價與功能](https://slack.com/pricing)
+因此，正確結論不是「Slack 不能做 agent」或「Discord 沒有 bot」，而是：
 
-Discord 也不應被描述成只能使用個人帳號。Discord 有正式的 bot user、OAuth2、伺服器權限、slash commands、buttons、modals 與互動事件。[Discord OAuth2 與權限](https://docs.discord.com/developers/platform/oauth2-and-permissions)、[Discord Interactions](https://docs.discord.com/developers/platform/interactions)
+> Lark 的優勢在於同一工作入口內同時承載身分、Mail、Base、文件、任務與審核；Slack 的優勢在 IM／App／外部協作生態；Discord 的優勢在社群與語音。對 agent 密集的辦公／營運團隊，Lark 的工作物件整合較貼近需求。
 
-比較精準的差異是：
+# 5. 反方攻擊與回應
 
-> Slack 偏向「企業 SaaS 與 agent 的整合層」；Discord 偏向「社群與即時互動的 agent 入口」；LarkSuite 則在「企業協作套件內直接執行 agent 工作流」上具有結構性優勢。
+| 反方攻擊 | 回應 |
+|---|---|
+| 「最佳」只是重新定義問題 | 部分正確。必須明示這是「AI agent channel」而非一般 IM 評比；在明確場景下重新定義比較單位是合理的。 |
+| Slack 已有成熟 App、Workflow、Connect 與企業治理 | 正確。論主不能說 Slack 做不到，只能說當 agent 要深度操作 Mail、表格、審核與企業身分時，Lark 可能少一層拼裝。 |
+| Discord 有成熟 bot、webhook 與語音 | 正確。Discord 可做 agent 入口，但本論主張的工作物件與企業治理不是 Discord 的強項；社群或語音場景不應硬套 Lark。 |
+| Lark 的免費或低價方案不代表 API、Mail、Base 額度足夠 | 正確。`02` 已寫「依現行方案為準」，公開表述仍應把方案、地區、額度列為前提。 |
+| Lark 會造成供應商鎖定 | 成立。集中 workspace 降低即時整合成本，也提高平台依賴；應補充 export、替代 connector 與資料遷移策略。 |
+| SSO 不等於 agent 授權 | repo 本身已承認，`03` 明寫「SSO 和 agent 權限是兩件事」。這是論主的強項，但必須把實作中的 scope、broker、lease 證據補齊。 |
+| 人工審核只是口號，agent 仍可能操作錯誤 | 目前確有風險。`plans/kasm-identity-cdp-and-secret-rotation.md` 的 control lease、接手即撤權與核准 ID 是正確方向，但文件標示仍在規劃中。 |
+| 每人一個 agent、獨立 browser profile 很難維運 | 成立。隔離提高安全性，也增加成本、監控、備份、升級與故障處理負擔；repo 尚未提供規模化數據。 |
+| repo 只是架構文件，不是完整產品 | 成立。公開文件應區分「設計」、「已驗證方向」與「已部署功能」，不能把它們混成一件事。 |
 
-## 4. 反方可能怎麼打，以及怎麼回
+# 6. 公開表述建議
 
-### 反方一：Slack 已經有 AI agent、企業安全與大量整合，Lark 並沒有明顯優勢
+建議使用以下版本：
 
-**回應：**
-
-這個反駁成立一半。Slack 在既有 SaaS 整合、企業治理、跨組織協作與 AI app 生態上可能更成熟。
-
-Lark 的主張不應是「Slack 做不到」，而應是：
-
-> 對已經把文件、Base、任務、日曆與郵件放在 LarkSuite 的團隊，Lark 可以減少第一方工作資料之間的身分與整合邊界。
-
-若團隊的主要資料與流程都在 Jira、Salesforce、GitHub、Google Workspace 或其他 SaaS，Slack 可能反而是較低摩擦的 agent channel。
-
-### 反方二：一站式平台會造成 vendor lock-in，並放大單一平台故障風險
-
-**回應：**
-
-這是有效的代價，不應迴避。平台越集中，整合成本可能越低，但供應商依賴、資料遷移、停機影響與政策變更風險也會增加。
-
-因此 Lark 論點需要附帶：
-
-- 重要資料是否能匯出。
-- Agent 是否保留外部執行層與重試機制。
-- 是否有 API、備份與降級通道。
-- 哪些資料是 Lark 的工作副本，哪些才是正式 system of record。
-- 企業是否接受同一供應商承擔通訊、文件與業務流程。
-
-### 反方三：Lark 不一定比較便宜，Discord 甚至可以免費使用
-
-**回應：**
-
-同意不能用授權單價直接下結論。
-
-應比較完整 TCO：
-
-> 人員席次 + Agent／模型用量 + API 與自動化限制 + 整合開發 + 權限維護 + 稽核合規 + 遷移與備援成本。
-
-Discord 的低授權成本在社群型或小型團隊很有吸引力；但若要補上企業目錄、文件、任務、郵件、稽核與業務資料治理，省下的授權費可能會轉化為外部系統與工程成本。
-
-## 5. 建議論主公開表述
-
-建議改成以下版本：
-
-> 在 AI agent 是一等協作者，且企業已把郵件、身分、訊息、文件、Base、日曆與任務集中於同一套協作平台的前提下，我們認為 LarkSuite 是較適合作為 AI agent channel 的預設選擇。它的優勢不只是聊天功能，而是能在同一個企業治理邊界內，完成 agent 的觸發、互動、審批、權限控管與結構化資料寫入，降低跨系統整合與身分映射成本。  
+> 在以 AI agent 執行辦公與營運工作的團隊中，如果 agent 不只是回覆訊息，而是要進入 Email、企業身分、多維表格、文件與人工審核流程，LarkSuite 是目前較適合作為主要 agent channel 的平台之一。它的優勢不是聊天或語音本身，而是能把人、agent 與工作物件放在同一個 workspace。  
 >
-> 這是條件式判斷，不代表 LarkSuite 在所有團隊與場景都勝過 Slack 或 Discord。若團隊已深度依賴 Slack 的企業整合生態與跨組織協作，Slack 可能更合適；若核心需求是公開社群、開發者互動或常駐語音，Discord 可能更合適。比較重點應從「哪個聊天工具比較好」改為「哪個平台最適合成為該團隊的 agent 工作入口與治理邊界」。
+> 這不代表 Slack 或 Discord 在所有場景都較差：Slack 仍適合既有 Slack／Connect 生態，Discord 仍適合社群與語音。Lark 的「最佳」只應限定在 agent 驅動的辦公／營運場景；成本部分應理解為整合與治理的總擁有成本假說，而不是已量化的普遍結論。
 
-其中，「最佳 AI agent channel」最好限定為：
+建議避免：
 
-> 對以 LarkSuite 作為主要企業協作與資料工作區的 agent-intensive 團隊，LarkSuite 是較合理的預設選擇。
+- 「Lark 永遠勝過 Slack／Discord」
+- 「Lark 一定更便宜」
+- 「所有功能已經整合完成」
+- 「SSO 自動等於 agent 有權限」
+- 「repo 已經證明完整生產部署」
+- 「Discord 沒有企業治理能力」
+- 「Slack 無法做企業級 agent」
 
-這比「LarkSuite 永遠完勝 Slack／Discord」更可驗證，也較不容易被反方用單一特殊場景擊破。
+# 7. 不確定前提
 
-## 6. 尚未確定的前提
+1. `cc-connect` 與 `lark-cli` 在公開架構中的實際部署範圍、版本與測試結果。
+2. Lark 方案、地區、Mail 帳號數、Base 自動化、API rate limit 與事件額度。
+3. Lark 企業帳號與 Authentik `principal_id` 的實際同步是否已完成。
+4. Kasm Workspaces OIDC、browser session broker 與 control lease 是否已進入正式服務。
+5. Slack 端的實際方案、既有 Connect 依賴、App 權限與外部文件／郵件整合成本。
+6. 團隊是否已有不可替代的 Slack 或 Discord 外部協作網路。
+7. 資料駐留、合規、供應商政策與客戶對 Lark 的接受程度。
+8. 多 agent、多人、多 browser session 的長期維運成本。
+9. 「碎片化整合成本高於授權差」目前仍是合理假說，不是 repo 已提供的實證。
+10. repo 所描述的部分能力是架構目標；公開內容尚不足以判定每一條工作流都已可靠運轉。
 
-本論點成立與否，至少取決於以下前提：
+# 8. 對上一輪 05 文的批評
 
-1. 團隊是否真的使用 LarkSuite 的 Email、Docs、Base、Tasks 與 Calendar，而不是只使用 Messenger。
-2. 所在地區與方案是否提供所需的 SSO、企業目錄、API、Base、郵件與日曆能力。
-3. Agent 是以應用身分執行，還是必須代表特定使用者讀寫資料。
-4. 企業是否允許 agent 直接寫入任務、文件、表格與日曆。
-5. 團隊是否已大量投資 Slack app、Slack Connect、GitHub、Jira、Salesforce 或其他 SaaS 整合。
-6. 使用者、外部協作者、訪客與客戶的比例。
-7. 語音、直播、公開社群與即時事件處理的重要程度。
-8. API 頻率限制、卡片互動限制、訊息保留、資料匯出與稽核要求。
-9. AI 模型、推理成本與外部工具成本是否納入 TCO。
-10. 企業是否願意承受 LarkSuite 的供應商鎖定與單一平台故障風險。
-11. 各平台目前方案、功能與地區政策可能變動，價格不能視為永久不變的結論。
-12. 「AI agent channel」本身仍需明確定義；若只需要通知與聊天，Lark 的整合優勢未必足以抵銷 Slack 或 Discord 的既有優勢。
+`docs/field-notes/05-larksuite-as-ai-agent-channel-review.md` 的優點是抓到了正確的比較軸，也提出了「有條件同意」、Slack Connect、Discord 社群、方案與合規限制。
 
-## 結論
+但它未先逐檔閱讀 repo，造成幾個弱點：
 
-論主的核心方向站得住：**AI agent 團隊需要比較的是工作入口與治理邊界，而不只是聊天體驗；在 LarkSuite 已承載企業主要協作資料的條件下，LarkSuite 很可能是比 Slack 或 Discord 更合適的 agent channel。**
+1. **沒有區分主張、設計與現況。**  
+   它把 Lark 的 Mail、Base、SSO、bot、審核與 agent 艦隊當成已可直接依賴的能力，卻沒有引用 `README.md` 的「正在測試上線中」、Chrome README 的「尚無預建 image」，以及 Kasm plan 的「規劃中，尚未變更現行服務」。
 
-需要修正的地方只有兩點：
+2. **沒有指出 repo 自己的內部限定。**  
+   `docs/field-notes/README.md` 明說「不是把尚未上線的構想當成現況」，這應該成為 review 的第一層判斷，而不是只接受論主的敘事。
 
-- 把「一步到位」改成「降低第一方協作能力的整合摩擦」。
-- 把「最佳」限定在特定團隊、資料集中度與 agent 工作流條件下。
+3. **對成本的批評不夠嚴格。**  
+   05 文說「碎片化成本 > 授權差」可辯護，但沒有指出 repo 沒有提供任何價格、工時、API 額度、維運或遷移數據。因此應稱為 TCO 假說，而非近似結論。
 
-這樣的立場既保留 LarkSuite 的結構性優勢，也不會被解讀成無條件的產品宣傳。
+4. **沒有查核 cc-connect、lark-cli 與治理控制面。**  
+   `04` 對兩者有架構定位，但沒有證明完整事件路由、權限 scope、錯誤處理、審核回寫與生產級稽核已完成。
+
+5. **沒有看見「治理設計仍有落差」。**  
+   05 文正確強調人審核，卻沒有充分指出 `principal_id`、Kasm session、control lease、CDP 邊界與 secret rotation 都集中在尚未完成的 plan。
+
+6. **Slack／Discord 對照過度概括。**  
+   「Slack 要外接」「Discord 企業治理弱」可以作為場景化方向，不能直接當成普遍產品判決；上一輪缺少「本 repo 沒有做同等 adapter 或 benchmark」的註記。
+
+7. **三方共識不能取代 repo 證據。**  
+   Grok、GPT、Kimi 都有條件同意，只能說論證方向具有一致性，不能證明產品能力、成本或部署成熟度。
+
+因此，上一輪 05 文最需要修正的不是主結論，而是證據層級：應從「Lark 的理念很合理」提升為「哪些由 repo 設計支撐、哪些只是公開產品能力、哪些尚未落地、哪些仍缺量化證據」。
 
 ---
 
-## Kimi Code review（全文）
+## Kimi Code review（本輪全文 · 已讀 repo）
 
-# Review：「LarkSuite 是 AI agent 團隊的最佳 agent channel」立場審查
+# Review：LarkSuite 作為 AI agent channel —— 讀完 repo 後的立場審查
 
-> 審查對象：thx0701 / OSSLab 針對 gist《Slack vs Discord》比較文提出的補充立場——**在以 AI agent 推動的團隊中，LarkSuite 是最佳 AI agent channel，而非 Slack／Discord 二選一。**
-> 本文審的是「公開論述是否站得住」，不是任何組織內部的 IM 選型決策。
+## 1. 我讀了什麼
 
-## 1. 表態
+以下引用均來自附件中的 repo 正本，附檔名：
 
-**有條件同意。** 在「AI agent 與人協作的入口（agent channel）」這個論主自己定義的軸心上，LarkSuite 的一體化 API 面確實有結構性優勢；但「最佳」二字需要加上前提（團隊型態、地區合規、既有整合沉沒成本），否則會被讀成無條件碾壓，反而削弱論點。
+1. `README.md` 開宗明義：「**Lark Suite 是給企業團隊使用的 IM 與協作平台**……再搭配 Authentik，這個 workspace 便成為 SSO 的身分基礎與 AI agent 的協作 channel」——channel 定位寫在 repo 第一句，不是事後補的修辭。
+2. `README.md` 工作流圖：`Lark 群組／私訊／Mail／Base／Forms → cc-connect + lark-cli + AI Agent Server → Codex／Grok 等訂閱制 runtime → …… → 結果、草稿、審核全部回到 Lark`——「從 Lark 進、回 Lark 出」是具體架構，不是口號。
+3. `docs/field-notes/01-ai-agent-applications.md`：「這不是把責任交給 AI，而是把『查、整、寫、比』交給 AI，把『批准、承諾、付款、例外』留給人。」——人審核邊界有明文原則。
+4. `01` 同文引用 [lark-cli](https://github.com/larksuite/cli)：「Lark 官方維護、為人員與 AI agent 設計的 CLI。它把 Messenger、Docs、Base、Sheets、Mail、Tasks 等常用工作面做成一致的命令與 agent skills」——「一步到位」有官方工具面支撐。
+5. `docs/field-notes/02-lark-suite-and-sso.md`：「Lark 現行免費方案提供可自訂的商務 Email；以自有網域建立個人與多個部門／功能性信箱後，每個 Lark 企業帳號就能成為 Authentik SSO 的身分依據」——Email→SSO 鏈條是 repo 的設計支柱，但也附了「實際可用功能、帳號與信箱額度依 Lark 現行方案為準」的保留。
+6. `02` 同文：「Base 比較接近 Airtable 的工作方式……即使是庫存、訂單與簡單出貨紀錄，也可以快速作為輕量 ERP 流程使用；當流程需要會計、採購、銷售與交付的完整控管時，再把 Odoo 作為選配 connector」——Base 定位為輕量流程層，ERP 是選配，這個分寸拿捏得比多數「平台萬能論」克制。
+7. `docs/field-notes/03-agent-governance.md` 六原則中：「權限要最小化」「高風險動作要可停」「管理者以 Git 細緻管理 agent……只有管理者能修改這些設定」——agent 治理不是喊「信任 AI」，而是 scope、審核、Git 留痕。
+8. `docs/field-notes/04-open-source-it-operations.md` 明列 `cc-connect`「把 Lark 事件路由到對應同事的專屬 agent，再回傳進度與人工介入請求；對同事不會另外露出第二個聊天 UI」——channel 主張的實作接點具名。
+9. `plans/kasm-identity-cdp-and-secret-rotation.md`：「狀態：規劃中，尚未變更現行服務」，並自承「若多個人都進同一個固定網址與容器，稽核結果只能知道有人進來，不能可靠回答『誰操作了哪個 browser』」——repo 對自身缺口是誠實的。
+10. `docker/chrome/README.md`：「No pre-built image has been uploaded to a registry yet」+ `README.md`「狀態：OSSLab 正在測試上線中」——整套東西是架構論述＋部分可公開元件，不是已交付產品。
 
-## 2. 論證是否站得住
+## 2. 表態
 
-### 強的點
+**有條件同意。** 在「agent 要動 Email、身分、結構化表格與審核」的辦公營運場景，repo 用實際架構（cc-connect＋lark-cli＋Base＋Authentik）證明 channel 視角不是修辭而是工程事實；但「最佳」只在這個場景邊界內成立。
 
-- **Channel 視角的框架重設（論點 1、5）**：這是整個立場最有價值的部分。原文以「整合代價／管理層級／語音／外部社群」為軸，本質是「人與人協作」的評比；論主指出 agent 團隊的瓶頸是「agent 能用多少程式化入口觸及工作物件」，這是一個原文確實漏掉的維度，而且不是小漏——對 agent 密集團隊它可能是主軸。這個 reframe 成立。
-- **一步到位／減少拼裝（論點 2）**：IM、文件、多維表格、日曆、任務、郵件在同一平台、同一身分體系、同一租戶下都有官方 API，意味著 agent 只需要一套 auth、一套權限模型、一個 audit 面。跨系統拼裝（IM 在 Slack、表在 Airtable、文件在 Google、郵件在 Gmail）對人只是麻煩，對 agent 是 N 套憑證生命週期管理與 N 個故障點。這點論證紮實。
-- **企業治理下的 bot 身分（論點 4 的一部分）**：bot 以企業帳號治理、有租戶級權限與審計，對「公司級 agent 艦隊」是硬需求，相對 Discord 以個人帳號為中心的生態確實是質的差異，不只是程度差異。
+## 3. 論主主張 vs repo 現況
 
-### 弱的點或需限定條件
+| 主張 | repo 支撐度 | 評 |
+|---|---|---|
+| Channel 視角，不是純 IM | **強支撐**。`README.md` 工作流圖與 `01` 的落地表（人在 Lark 交辦／agent 後端做／結果回 Lark）把「channel」定義成有向圖，不是比喻。 | 站得住。 |
+| Email、SSO、Base 一步到位 | **支撐但有保留**。`02` 確實把 Mail→Authentik→OIDC 串起來，也給了 Base→輕量 ERP 的路徑；但同文明寫「實際額度與功能依 Lark 方案為準」。 | 主張成立，公開表述應保留這句 but。 |
+| 成本不必然更貴、碎片化更貴 | **間接支撐**。repo 只採訂閱制 runtime 的理由（`03`：「不需要把每一個 agent 的使用量都變成難以預估的純 API 帳單」）是同一個 TCO 思維，但 repo **沒有**給出 Lark vs Slack 的量化比較。 | 可辯護的直覺，不能寫成實證。 |
+| 企業 bot／卡片／API 適合 agent 艦隊 | **強支撐**。`04` 具名 cc-connect 與官方 lark-cli；`03` 的六原則展示 bot 身分、scope、Git 管理是可治理的。 | 這是論主最硬的一點。 |
+| 原文漏掉 agent channel 軸心 | **支撐**。對照 gist 的軸心（整合代價／管理層級／語音／外部住哪）確實全部以人為中心，沒有觸發、身分、審批、留痕、撤權這五個 agent 維度。 | 成立，且是整場 review 最有價值的修正。 |
 
-- **成本論證（論點 3）偏薄弱**：「並不必然更貴」是守勢說法，且「真正昂貴的是整合碎片化」雖然方向正確，但沒有量化就只是一句合理的直覺。碎片化成本真實存在，但反方同樣可以主張「Lark 一體化 = 單一供應商鎖定的隱性成本」。建議把這點降格為「成本不是 Lark 的劣勢」而非論證支柱。
-- **「Slack 的 agent 操作性」被低估（論點 4 的盲區）**：Slack 的 Bolt/SDK、Block Kit 互動、Enterprise Grid 的租戶治理、以及近年自家 AI/agent 功能的投入，使 Slack 在「bot 平台」這一項並非明顯落後。Lark 的真正差異不在 IM/bot 層，而在**文件、表格、表單、日曆、審批這些工作物件與 IM 同平台**。論述應把火力集中在這裡，而不是暗示 Slack 的 bot 能力弱——那會被熟悉 Slack API 的人一眼戳破。
-- **「最佳」缺乏比較基準**：未界定與誰比、在什麼規模、什麼地區。飛書（中國版）與 Lark（國際版）在合規、資料落地、可用功能上有差異；對歐美團隊，Lark 的採用障礙（供應商信任、在地化生態、第三方整合數量）是真實成本，論述完全沒有處理。
-- **語音常駐的 dismiss 稍快**：「語音不是 agent 團隊首要軸心」對純 agent 流程成立，但 agent 團隊裡仍有真人，即時語音協作（事故處理、pair debugging）是 Discord 的實質強項。這點可以讓步而不傷主論點，不讓步反而顯得選擇性。
+**誇大處**：「最佳」一詞。repo 自己的 `README.md` 用詞是「最適合做 AI bot channel 的工作入口」——這是**場景內**判斷；公開立場若寫成無條件的「最佳」，超出了 repo 自己 claim 的範圍。
 
-## 3. 作為「AI agent channel」的三方對照
+**缺口**：repo 狀態是「測試上線中」、Chrome 無 pre-built image、Kasm 身分對應還在 plan 階段。換言之，repo 證明了**方向可行且想得比別人深**，但尚未證明**規模化營運**。論主引用 repo 時不該讓讀者誤以為這是 GA 產品的戰報。
 
-| 維度 | LarkSuite | Slack | Discord |
+## 4. 與 Slack／Discord 對照（AI agent channel 軸）
+
+| agent channel 維度 | LarkSuite（repo 實作） | Slack | Discord |
 |---|---|---|---|
-| bot 身分治理 | 企業租戶級，權限/審計完整 | Enterprise Grid 下同級；免費/小團隊層級較鬆 | 個人帳號生態為主，公司級治理弱 |
-| 互動能力（卡片/回調） | 卡片訊息 + 互動回調，原生支援 | Block Kit + interactivity，成熟度相當 | 有 components/interactions，但設計導向社群而非工作流 |
-| 工作物件同平台度 | **高**：文件、多維表格、表單、日曆、任務、郵件、審批皆有官方 API | 低：僅 IM/Canvas/Lists 等有限物件，其餘靠第三方整合 | 極低：幾乎只有訊息與語音 |
-| 單一 auth / 權限模型 | 是 | 僅限 IM 域，跨工具即碎裂 | 否 |
-| 生態與第三方整合數 | 中（成長中，國際版弱於中國版） | **高**，SaaS 整合事實標準 | 中，但偏向社群/遊戲工具鏈 |
-| agent 框架的現成支援 | 較少現成範例，需自建 | 最多現成 SDK/範例/教學 | 多但品質偏向社群 bot |
-| 語音/即時在場 | 有會議但非「常駐語音房」文化 | huddle 可用 | **強**，常駐語音是原生體驗 |
-| 合規/資料落地彈性 | 需注意地區版本差異 | 企業方案選項成熟 | 弱 |
+| 觸發與路由 | cc-connect 把 Lark 事件路由到「對應同事的專屬 agent」（`04`），不露出第二個聊天 UI | 成熟（Events API／Bolt），但路由到「每人一個 agent、各自瀏覽器身分」要自己拼 | 有 bot gateway，但帳號治理屬個人生態 |
+| 工作物件寫入 | lark-cli 官方覆蓋 Messenger/Docs/Base/Sheets/Mail/Tasks（`01`） | 訊息強；Mail、表格、表單幾乎必外接 | 幾乎全外接 |
+| Email 通道 | 部門公用信箱同 workspace，agent 可讀被授權 mailbox 並草擬（`02`） | 無原生企業信箱 | 無 |
+| 身分治理 | Lark 帳號 → Authentik OIDC → 各自架服務（`02` 圖） | SSO 成熟但止於 Slack 本身 | 弱 |
+| 人審核 | 高風險動作回 Lark 確認、KasmVNC 真人可接手同一 session（`03`、plan Phase 2） | 可做（互動訊息），但「可視瀏覽器接手」不在平台內 | 弱 |
+| 結構化流程 | Base/Forms 當輕量 ERP，Odoo 選配（`02`） | 靠 Workflow Builder＋外接 | 無 |
 
-**小結**：若評分軸是「agent 能程式化觸及多少工作物件、在統一治理下觸及」，Lark 領先且是結構性領先（對手補不上來，因為那是產品邊界問題）；若評分軸是「既有整合生態、現成 agent 工具鏈、語音在場」，Slack／Discord 各有勝場。
+結論：repo 的架構選擇與論主的 channel 主張**嚴絲合縫**——這不是挑一個 IM 然後說它好，而是先把 agent 需要的五件事（觸發、身分、寫入、審批、留痕）列出來，Lark 恰好是三者中唯一同租戶給齊的。Slack 的強項（App 生態、Slack Connect 外部協作）與 Discord 的強項（語音、社群）在這個軸上都不是第一排序。
 
-## 4. 反方可能的攻擊與回應
+## 5. 反方攻擊與回應
 
-**攻擊 1：「Slack 的 bot 平台能力不比 Lark 差，你比的是 IM 附帶的辦公套件，不是 channel。」**
-回應：承認 bot 層打平，但 channel 的定義就是「agent 與人協作的入口」——人協作的產出物（文件、表、任務、日程）若不在 channel 可及之處，agent 就只能傳話不能辦事。這不是跑題，是 channel 定義的下半句。
+1. **「你這是一家公司的自用架構，不能推廣成『最佳』。」** → 部分成立。回應：repo 的價值在於把 channel 的五個評估維度**具體化**了；其他團隊可以照這個軸心重評，結論未必是 Lark，但軸心本身成立。論主應把「最佳」收斂為「在我們定義的 agent 密集營運場景中最佳」。
+2. **「Lark 免費方案額度撐得起 agent 艦隊嗎？」** → repo 自己保留了「依方案為準」（`02`）。這是誠實的缺口，公開表述不能跳過。
+3. **「外部客戶都住 Slack／Email，Lark 是內向的。」** → 成立但非致命：repo 設計中 Mail 與 Form 就是對外介面（`01`：外圍客戶填 Form → Base → agent），外部 IM 協作可作 sidecar，不否定主 channel。
+4. **「Kasm／CDP 那段還在 plan，代表『一人一身分一 agent』目前是宣稱。」** → 這是最實在的一擊。repo 的誠實（plan 開頭自承現況缺口）反而是防禦：論主可以說「我們把缺口公開排程了」，但**不能**在 review 中把治理成熟度講成已落地。
+5. **「供應商鎖定／地區合規。」** → repo 用 Odoo CE、Forgejo、Authentik、Vaultwarden 自架層稀釋了單一 SaaS 依賴（`04`），但 Lark 本身是 SaaS，這層鎖定論主沒有正面處理，公開版應承認這是 trade-off 而非不存在。
 
-**攻擊 2：「一體化 = 鎖定。Lark 倒了或漲價你全部陪葬；Slack + 各類最佳單品工具可以分散風險。」**
-回應：鎖定風險真實存在，應正面承認並限定主張範圍——「對 agent 密度高、且工作物件以文件/表單/表格為主的團隊」。同時指出分散式拼裝的整合成本是**確定的、持續的**，鎖定風險是**或然的**，對小團隊前者通常先兌現。
+## 6. 公開表述建議
 
-**攻擊 3：「Discord 免費、語音強、agent 框架（各種 bot SDK）現成，新創 agent 團隊用它的大有人在。」**
-回應：Discord 適合「對外社群 + 小團隊即時語音」場景，這點讓步；但個人帳號治理、缺乏企業審計、工作物件缺席，使其在公司級 agent 艦隊情境下是不同量級的產品。兩者服務的場景重疊度其實很低。
+- 主詞固定為「**AI agent channel**」，不用「最好的 IM」。
+- 把「最佳」改為「**對 agent 密集的辦公營運團隊，是目前最完整的 channel**」，並附上 repo 自己的三個可檢查點：Email→SSO（`02`）、Base 輕量流程（`02`）、bot 治理六原則（`03`）。
+- 成本論寫成「**碎片化整合的 TCO 高於授權差**」的假設，引用 repo 採訂閱制 runtime 的同一邏輯（`03`）作為一致性的旁證，不偽裝成量化實證。
+- 主動標註成熟度：「架構已公開、部署 patch 與 plan 陸續釋出中」（`README.md` 公開進度一節），讓誠實成為可信度資產。
+- 建議一句話版本：
 
-## 5. 建議論主的公開表述寫法
+> Slack vs Discord 的比較回答「人住哪裡」；osslab-agent 的實作（cc-connect＋lark-cli＋Base＋Authentik SSO）回答的是「agent 以誰的身分、在哪個可審核的脈絡裡工作」。對要讓 agent 動郵件、表格與審核的團隊，LarkSuite 是目前唯一把這些放在同一 workspace 的選項。
 
-目前立場的最大風險是被讀成「Lark 永遠完勝」。建議的精準版本：
+## 7. 不確定前提
 
-> 原文比較 Slack 與 Discord 的軸心——整合代價、管理層級、語音、外部社群——回答的是「人與人怎麼協作」。對以 AI agent 推動的團隊，還有一個原文沒問的問題：**agent 能用一組受企業治理的 API，觸及多少實際工作物件？** 在這個軸上，能把 IM、文件、多維表格、日曆、任務、郵件放在同一租戶、同一身分體系下的平台（LarkSuite 是代表例）有結構性優勢：agent 不必跨系統拼裝憑證與權限。這不是「Lark 在每個場景都贏」——Slack 的整合生態、Discord 的常駐語音各有勝場——而是「Slack vs Discord 二選一」這個框架本身漏掉了 agent 團隊最關心的維度。
+- Lark 各方案的 Mail 信箱數、API rate limit、Base automation 額度是否支撐「每人一個專屬 agent」的密度——repo 未給數字。
+- cc-connect 的長期維護性（第三方開源專案）；若上游停擺，channel 主張的實作層需要備案。
+- 論主的「不必然更貴」缺乏跨團隊規模的 TCO 數據；小團隊免費方案成立，不代表 50 人以上成立。
+- 非 Lark 覆蓋地區、或合規禁止特定供應商的讀者，整個主張不適用——repo 未處理這個 scope。
+- Kasm Workspaces 試點（plan Phase 1–3）能否如期達成 `principal_id → agent → browser → task` 的完整對應，目前只是計畫。
 
-要點：
+## 8. 對上一輪 05 文的批評（未先讀 repo 導致的弱點)
 
-- 把主張從「X 是最佳」改寫為「原框架漏了一個軸，而在這個軸上 X 類平台有結構優勢」。前者是排行榜語言，易被反例打；後者是框架批評，站得穩。
-- 主動讓出語音、生態兩個戰場，換取主論點的不可駁性。
-- 成本論點降格為附註：「授權標價不是 Lark 的劣勢；碎片化成本常大於標價差」。
-- 加上適用邊界：「agent 密度高、工作物件以文件/表格/表單為主、可接受 Lark 供應商與地區版本的團隊」。
+讀完 repo 再看 05 的三方 review（含我——Kimi——所屬的那輪），弱點很清楚：
 
-## 6. 不確定的前提（列出待驗證）
-
-1. 論述假設目標讀者團隊的工作物件確實以文件、多維表格、日曆為主；若團隊主要產出是程式碼與 CI/CD 事件，「同平台工作物件」的優勢會大幅縮小（那些物件在 Git 平台，不在 IM 平台）。
-2. 未驗證 Lark 國際版與中國版在 API 功能、rate limit、審計能力上的差異；公開表述應避免把任一版本的經驗概括為「LarkSuite 全體」。
-3. 「整合碎片化成本 > 授權價差」未量化，屬合理直覺而非已證事實。
-4. Slack 近期的原生 AI/agent 功能與 Salesforce 系整合演進快速，三方對照表有時效性，建議標註撰寫日期。
-5. Discord 的企業治理弱點是以「個人帳號生態」論斷；若 Discord 未來推出正式企業方案，此論點需重估。
-6. 未處理資料合規與供應商信任（部分組織對特定供應商有政策限制），這在公開討論中很可能被提出，宜先準備回應。
-
----
-
+1. **把 channel 主張當純論述審，沒發現它是架構的副產品。** 05 三方都在抽象的「Email＋SSO＋Base 同租戶」上表態，但 repo `04` 明明具名了 cc-connect 與 lark-cli 這兩個實作接點、`01` 有落地表。沒讀 repo 的 review 只能評「這個想法合不合理」，無法評「這個主張有沒有被自家程式碼兌現」——而後者才是公開立場的真正支撐。
+2. **漏掉 repo 自己的保留條款，導致條件開錯。** 05 三方加的限定（綁場景、TCO 非實證）方向對，但 repo 裡更鋒利的保留——「實際額度依 Lark 方案為準」（`02`）、Kasm 身分對應還在 plan、無 pre-built image——全部沒被引用。真正的「有條件」應該開在**成熟度與額度**，05 開在**場景邊界**，輕重倒置。
+3. **反方攻擊停留在通用層。** 「客戶都在 Slack Connect」「Git＋Discord 就好」是任何 Lark 論述都會遇到的通用反駁；讀過 repo 才能打出真正有殺傷力的點——「你的一人一身分一 agent 目前是 plan 不是現況」——以及相應的防禦（repo 把缺口公開排程）。05 的反方攻防因此偏軟。
+4. **治理論述被低估。** 05 幾乎沒提 `03` 的六原則與「管理者以 Git 細緻管理 agent」。這其實是論主對「公司級 agent 艦隊」主張最硬的證據——bot 身分可授權、可審計、可收回——不引 repo 就只剩「Lark 有企業 bot API」這種市面陳述。
+5. **方法論教訓**：審一個「有 repo 的公開立場」，不讀 repo 等於只審了論述的一半——主張的一半在文字，另一半在它指向的架構是否真存在。05 三方（含我在內）上一輪都做了前半，這一輪補上後半，結論方向沒變，但**證據密度與反方攻防的銳度完全不同**。
 
 ---
 
-## 與本 repo 其他文件的關係
+*本 review 僅依據附件公開 Markdown，不含帳密、內網位址或個資；未實際連線 GitHub 或執行任何 repo 程式，架構可行性的判斷以文件內容為限。*
+
+---
+
+## 與本 repo 其他文件
 
 | 文件 | 關係 |
 | --- | --- |
-| [README](../../README.md) | 產品結論：Lark 是 AI bot channel 工作入口 |
-| [01 · 多人 AI agent 應用](01-ai-agent-applications.md) | 人只見 Lark、agent 在後端的落地方式 |
-| [02 · Lark Suite、Mail、Base 與 SSO](02-lark-suite-and-sso.md) | Email／Base／SSO 為何構成一步到位 |
-| 本文 | 對外部「Slack vs Discord」討論的**論述審查**與三方意見存檔 |
+| [README](../../README.md) | 產品結論與工作流 |
+| [01](01-ai-agent-applications.md)～[04](04-open-source-it-operations.md) | 落地與治理（本輪必讀材料） |
+| 本文 | 論述審查正本（**讀過 repo 後**的三方意見） |
 
+## 修訂說明
+
+- **第一輪**：只給論主主張與 gist 框架，**未**要求讀本 repo → 審查偏抽象。  
+- **本輪**：強制讀公開 Markdown 正本後再審，並以此文為 GitHub 上的 review 正本。  

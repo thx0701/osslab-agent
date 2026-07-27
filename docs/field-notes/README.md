@@ -8,6 +8,6 @@
 | [02 · Lark Suite、Mail、Base 與 SSO](02-lark-suite-and-sso.md) | 為何 Lark 是唯一工作入口，也是登入入口？ |
 | [03 · 管理與治理](03-agent-governance.md) | 多個 agent 怎麼分工、授權、審核與留痕？ |
 | [04 · 自架平台與 IT 維護](04-open-source-it-operations.md) | 身分、VPN、Git、密碼庫、Agent Server、Odoo 選配與維護服務怎麼組成一個可維護的底座？ |
-| [05 · LarkSuite 作為 AI agent channel 的三方 review](05-larksuite-as-ai-agent-channel-review.md) | 對 Slack vs Discord 框架：為何 AI agent 團隊應以 channel 視角選 LarkSuite？ |
+| [05 · LarkSuite 作為 AI agent channel 的三方 review](05-larksuite-as-ai-agent-channel-review.md) | 對 Slack vs Discord 框架：為何 AI agent 團隊應以 channel 視角選 LarkSuite？（**先讀本 repo 再審**） |
 
-前四篇共同說明元件、通訊架構、實際工作情境與治理邊界；第 05 篇是對外部協作工具討論的論述存檔（Grok／GPT-5.6-Luna／Kimi）。
+前四篇共同說明元件、通訊架構、實際工作情境與治理邊界；第 05 篇是對外部協作工具討論的論述存檔（Grok／GPT-5.6-Luna／Kimi；正本為讀過本 repo 公開文件後的重審）。
