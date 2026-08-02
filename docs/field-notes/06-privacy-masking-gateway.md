@@ -92,9 +92,9 @@ flowchart TB
 
 | 元件 | 來源 | 職責 | 要寫的東西 |
 | --- | --- | --- | --- |
-| LiteLLM proxy | [BerriAI/litellm](https://github.com/BerriAI/litellm) | LLM API 閘道；`output_parse_pii: true` 進線 mask、出線還原 | `config.yaml` guardrail 設定 |
+| LiteLLM proxy | [BerriAI/litellm](https://github.com/BerriAI/litellm) | LLM API 閘道；`output_parse_pii: true` 進線 mask、出線還原；virtual key 依 agent 綁 model allowlist／預算 | `config.yaml` guardrail 設定 |
 | Presidio analyzer / anonymizer | [microsoft/presidio](https://github.com/microsoft/presidio) 官方 Docker image | PII 偵測與遮罩引擎 | 台灣 recognizer JSON（`presidio_ad_hoc_recognizers`）：身分證字號、統一編號、09 手機 regex＋context |
-| ContextForge MCP gateway | [IBM/mcp-context-forge](https://github.com/IBM/mcp-context-forge) | MCP 層 policy、audit、PII plugin（`tool_pre_invoke`／`tool_post_invoke`） | plugin config YAML |
+| ContextForge MCP gateway | [IBM/mcp-context-forge](https://github.com/IBM/mcp-context-forge) | MCP 層 tool allowlist、approval workflow（人工確認閘門）、audit、PII plugin（`tool_pre_invoke`／`tool_post_invoke`） | plugin config YAML |
 | odoo-mcp | [nicolasramos/odoo-mcp](https://github.com/nicolasramos/odoo-mcp) | Odoo MCP server（自帶 allowlist／redaction／audit logging） | 原樣使用，接專用 API user |
 | Odoo 專用 API user | 既有 Odoo | 最小 ACL —— 脫敏漏了什麼，暴露面先被權限砍過一輪 | 權限設定 |
 
@@ -114,7 +114,21 @@ guardrails:
       presidio_ad_hoc_recognizers: "./tw_recognizers.json"
 ```
 
+## 同一閘道，兼任權限控管
+
+脫敏不是這層唯一的功能。訂閱制 agent 的**所有 LLM 流量與 MCP 呼叫都必經這兩台 gateway**，正好把[〈03 · 管理與治理〉](03-agent-governance.md)的治理原則落到實處，不必在 agent 本體上動手：
+
+| 治理原則（03 篇） | 在閘道層的做法 |
+| --- | --- |
+| 一人一個專屬 agent／權限最小化 | LiteLLM **virtual key**：每個專屬 agent 一把 key，各自綁 model allowlist、rate limit 與預算上限；ContextForge 依 agent 切 tool allowlist；odoo-mcp 再疊 allowlist／denylist；Odoo 專用 API user 最小 ACL 做底 |
+| 高風險動作要可停 | ContextForge approval workflow：寫入、刪除、寄信類 tool call 卡**人工確認**才放行；危險工具可直接 deny |
+| 過程要能回看 | LiteLLM 記每一次 LLM 請求（含 guardrail 偵測到的實體與遮罩紀錄），ContextForge 記每一次 tool call —— 同一份 audit 同時回答「agent 看到什麼資料」與「agent 做了什麼操作」 |
+
+也就是說，「管理的單位是工作流，不是模型」在這裡多了一個具體落點：**能力邊界與資料邊界集中在閘道層，以 YAML 管理、進 Git 留痕**；調整權限或脫敏政策不用改 agent，也不用碰 cc-connect 與 Odoo。
+
 ## 工作負載對應
+
+> 兩張圖的 PNG／SVG 已匯出至 [`docs/assets/`](../assets/)（`06-masking-sequence.*`、`06-masking-component.*`），供 Lark 文件、簡報等不渲染 mermaid 的場合使用；`.mmd` 原始碼即內嵌於本篇，修改後重繪即可。
 
 | 負載 | 路徑 | 說明 |
 | --- | --- | --- |
@@ -148,3 +162,11 @@ guardrails:
 - [nicolasramos/odoo-mcp](https://github.com/nicolasramos/odoo-mcp)；候選 [ivnvxd/mcp-server-odoo](https://github.com/ivnvxd/mcp-server-odoo)、[muk_mcp](https://github.com/muk-it/odoo-modules/tree/19.0/muk_mcp)（Odoo 內掛 addon 路線）
 
 上一篇：[〈LarkSuite 作為 AI agent channel 的三方 review〉](05-larksuite-as-ai-agent-channel-review.md)
+
+### 附：重繪指令
+
+圖檔以 mermaid 原始碼為準，匯出使用 [mermaid-skill](https://github.com/Agents365-ai/mermaid-skill) 流程（validate → export → vision self-check）：
+
+```bash
+mmdc -i diagram.mmd -o diagram.png -w 2048 --backgroundColor white
+```
