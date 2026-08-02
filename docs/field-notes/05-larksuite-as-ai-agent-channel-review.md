@@ -28,12 +28,13 @@
 - **功能**：IM 為核心，App 目錄、Workflow Builder、Slack Connect（跨組織頻道）、Huddles 語音。
 - **強**：App／整合生態最成熟；Connect 是跨公司協作的事實標準；企業治理（Enterprise Grid、DLP、eDiscovery）完整。
 - **弱**：沒有內建企業 Mail、沒有可自動化的 Base／表單資料庫；文件、郵件、審核都要外接別家服務，agent 工作物件是拼裝的。企業方案按人頭計價，高於 Lark Basic。
+- **免費留痕最短**：Free 只能看**最近 90 天**訊息與檔案，且 2024-08 起超過一年的資料滾動刪除——比 Lark Free 的約半年還短，升級也救不回已被刪的部分。
 - **特色**：「人在哪上班」的 IM 霸主，外部廠商／客戶強制用 Slack 時無法拒絕——所以當 **sidecar** 接入，不當 agent 主 channel。
 
 ### Discord（社群／語音 sidecar）
 
 - **功能**：頻道＋語音舞台＋bot／webhook API，社群權限角色制。
-- **強**：語音與即時社群互動最強；bot 開發門檻低、社群生態活；免費層幾乎無人數與歷史限制。
+- **強**：語音與即時社群互動最強；bot 開發門檻低、社群生態活；免費層幾乎無人數限制、**訊息歷史無限期保留**（這點反而比 Lark Free 半年、Slack Free 90 天都長）。
 - **弱**：沒有企業 Mail、沒有 Base／文件協作、沒有企業 SSO 身分生命週期；稽核、留痕、合規能力弱，不適合承載公司級 agent 艦隊。
 - **特色**：是社群與語音場景的答案，不是企業工作入口——**不當公司 agent 主 channel**。
 
@@ -44,6 +45,7 @@
 - **一個入口全包**：IM＋Mail＋文件＋Base／Forms＋審核＋企業身分同租戶，Slack／Discord 要外掛才補得上這一圈。
 - **SSO 是主因**：Mail 立身分、OIDC 延伸自架服務，帳密不散落、新人上手快。
 - **成本不是障礙**：Free 起步、半年留痕是唯一實質限制、Basic ~$6 逐人補長史，相對 Slack 企業方案不算貴。
+- **免費留痕三方比**：Slack Free 90 天＜**Lark Free 約半年**＜Discord Free 無限期——Lark 居中，但 Discord 的長留痕沒有企業治理可用。
 - **實作已完成**：cc-connect、lark-cli、專屬 agent、Mail／Base、SSO 鏈、人審核都已落地運行；README「測試上線中」是公開釋出語氣，不是架構沒做完。
 
 ## 反（風險與邊界）
