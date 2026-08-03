@@ -195,8 +195,8 @@ sequenceDiagram
     participant OC as odooclaw MCP
     participant O as Odoo
 
-    U->>CC: ① 原文訊息（含 PII）
-    CC->>CX: ② 轉發
+    U->>CC: ① 原文訊息（含 PII，經 lark-proxy egress）
+    CC->>CX: ② 轉發（同 container 內 fork）
     CX->>P: ③ Responses request（完整 payload）
     P->>P: ④ mask：Presidio＋TW regex/checksum＋Odoo 字典<br>mapping 寫 vault-redis
     P->>CP: ⑤ 脫敏後 payload（model network 內）
@@ -206,7 +206,7 @@ sequenceDiagram
     P-->>CX: ⑨ restore（mapping 缺漏即 fail closed）
     CX->>CF: ⑩ MCP tool call（真值參數，免 resolve）
     CF->>OC: ⑪ scoped server · policy 分類
-    OC->>O: ⑫ XML-RPC（專用 API user 最小 ACL）
+    OC->>O: ⑫ XML-RPC（經 odoo-proxy 固定 relay · 專用 API user 最小 ACL）
     O-->>OC: ⑬ 原始資料
     OC-->>CF: ⑭ 回傳（audit 只記 metadata）
     CF-->>CX: ⑮ tool result
@@ -226,13 +226,16 @@ sequenceDiagram
 
 ```mermaid
 flowchart TB
-    subgraph CH["通道層 · 原樣不動"]
-        U[客戶] <--> LK[Lark / Feishu]
-        LK <--> CC[cc-connect]
+    subgraph CH["通道層"]
+        U[客戶] <--> LK["Lark / Feishu 雲端"]
     end
 
-    subgraph AG["Agent 層"]
+    LP["lark-proxy<br>egress 只放行 larksuite.com"]
+
+    subgraph BOT["privacy-bot · 單一 container（cc-connect＋Codex 同住）"]
+        CC["cc-connect"]
         CX["Codex CLI<br>gpt-5.6-terra · xhigh · Responses wire API"]
+        CC -->|fork child| CX
     end
 
     subgraph GW["脫敏閘道層 · 自建 · 純 CPU"]
@@ -262,18 +265,21 @@ flowchart TB
     subgraph ERP["地端 ERP 層"]
         CF["ContextForge 1.0.6<br>scoped bot · 最小 RBAC · 30 天 JWT · admin 403"]
         OC["odooclaw MCP · pinned"]
+        OP["odoo-proxy<br>固定 relay → ERP 主機"]
         O[("Odoo")]
         CF <--> OC
-        OC <--> O
+        OC <--> OP
+        OP <--> O
     end
 
-    CC <--> CX
+    LK <--> LP
+    LP <--> CC
     CX <--> P
     P <--> CP
     CP <--> AI
     CX <--> CF
     DS --> DR
-    DS <--> O
+    DS <--> OP
 ```
 
 與原 component view 的差異：LiteLLM proxy 換成自建 sidecar；還原狀態從 LiteLLM 內部移到獨立 **vault-redis**；新增 **dictionary-redis／dictionary-sync**（Odoo 精確字典，只有 sync 元件持 Odoo 憑證）；模型出口固定為 **CLIProxyAPI**（唯一有 Internet egress 的模型元件）；odoo-mcp 換成 pinned **odooclaw**；全部服務以 **Docker network segmentation** 隔離，host 只綁 `127.0.0.1:18400`／`:18444`。
