@@ -1,6 +1,8 @@
 # 06 · 隱私脫敏：訂閱制雲端 agent 的 gateway 架構
 
 > **狀態：架構方向定案，待 spike 驗證後實作。** 本篇是設計紀錄，不是已上線現況；四項 spike 測試（見文末）通過前，下列元件不進 production。
+>
+> **2026-08-03 更新：已部署上線，實際元件與下文的 LiteLLM 方案不同。** Spike 後改採自建 privacy sidecar；實際架構、圖與驗收結果見文末〈更新：實際部署架構（2026-08-03）〉。下文完整保留為 spike 前的原始設計紀錄。
 
 OSSLab-agent 只採訂閱制 runtime（Codex、Grok、Claude Code 等 OAuth 登入的 harness），但工作負載充滿個資：Lark 客戶對話、Odoo 客戶與訂單資料、大量客服 email 讀取、PDF 報價文件編寫。這些資料在進入雲端模型之前必須脫敏，回覆送出前再還原。核心原則只有一條：
 
@@ -160,6 +162,133 @@ guardrails:
 - [Presidio custom recognizers](https://presidio.dataprivacystack.org/analyzer/adding_recognizers/)；台灣身分證 recognizer 上游尚缺（[issue #2065](https://github.com/data-privacy-stack/presidio/issues/2065)），檢查碼算法參考 [identity.tw](https://identity.tw/)
 - [IBM ContextForge plugins](https://ibm.github.io/mcp-context-forge/using/plugins/plugins/)
 - [nicolasramos/odoo-mcp](https://github.com/nicolasramos/odoo-mcp)；候選 [ivnvxd/mcp-server-odoo](https://github.com/ivnvxd/mcp-server-odoo)、[muk_mcp](https://github.com/muk-it/odoo-modules/tree/19.0/muk_mcp)（Odoo 內掛 addon 路線）
+
+## 更新：實際部署架構（2026-08-03）
+
+> 以上全文保留為 spike 前原始設計。Spike 結論：**LiteLLM 方案未採用**，實際部署改為自建 FastAPI privacy sidecar＋Codex CLI＋CLIProxyAPI，並已通過完整驗收上線。Normative 規格與驗收紀錄在 Forgejo `osslab/privacy-masking-gateway` 的 `docs/specification.md` 與 `docs/verification.md`；此節只記差異與 as-built 架構。
+
+### 為什麼換掉 LiteLLM（spike 結論）
+
+- LiteLLM 在原生 Responses／SSE 串流／tool payload 的**多實體還原 round-trip** 有上游已知風險（[#22821](https://github.com/BerriAI/litellm/issues/22821)、[#24291](https://github.com/BerriAI/litellm/pull/24291)），我們的 stack 全中。
+- 上游追蹤至 2026-08：#22821 雖已 closed（僅修 Anthropic native 路徑，實際 merged 的是 [#30028](https://github.com/BerriAI/litellm/pull/30028)，follow-up [#30316](https://github.com/BerriAI/litellm/pull/30316) 仍 open）；對本 stack 最關鍵的 [#31950](https://github.com/BerriAI/litellm/issues/31950)（OpenAI-compat 路徑 `tool_calls[].function.arguments` 永不還原）**仍 open**，修復 PR [#32014](https://github.com/BerriAI/litellm/pull/32014) 已存在且經第三方 live 驗證，卻躺一個月無 maintainer review。Round-trip 可靠性是上游不可控變數，這正是當初改自建的理由，至今成立。
+
+### 原始四項 spike 的實際處置
+
+| 原始 spike | 處置 |
+| --- | --- |
+| opencode＋LiteLLM streaming／tool call | 未採用該組合；改 **Codex CLI＋自建 sidecar**，non-stream、SSE、tool call、multi-turn 均通過 Gate 1 |
+| 未編號 placeholder 多實體碰撞 | 改 session-scoped `⟦TYPE_NNNN⟧` 雙向 mapping（HMAC session key，存獨立 vault-redis，TTL 3600s） |
+| 台灣識別碼命中率 | Presidio＋本地 regex＋checksum/Luhn＋**Odoo 精確字典**（dictionary-sync 同步客戶主檔）＋中英文姓名 fallback |
+| 訂閱 OAuth 經 proxy | 採 Codex ChatGPT OAuth＋CLIProxyAPI；Claude Code／LiteLLM 路徑未部署、不在驗收範圍 |
+
+### 實際資料流（as-built round trip）
+
+```mermaid
+sequenceDiagram
+    participant U as 客戶 (Lark)
+    participant CC as cc-connect
+    participant CX as Codex CLI
+    participant P as privacy sidecar<br>FastAPI Responses
+    participant CP as CLIProxyAPI
+    participant AI as ChatGPT 訂閱 OAuth
+    participant CF as ContextForge
+    participant OC as odooclaw MCP
+    participant O as Odoo
+
+    U->>CC: ① 原文訊息（含 PII）
+    CC->>CX: ② 轉發
+    CX->>P: ③ Responses request（完整 payload）
+    P->>P: ④ mask：Presidio＋TW regex/checksum＋Odoo 字典<br>mapping 寫 vault-redis
+    P->>CP: ⑤ 脫敏後 payload（model network 內）
+    CP->>AI: ⑥ 唯一 cloud egress
+    AI-->>CP: ⑦ 回覆（含 ⟦TYPE_NNNN⟧）
+    CP-->>P: ⑧ 轉回
+    P-->>CX: ⑨ restore（mapping 缺漏即 fail closed）
+    CX->>CF: ⑩ MCP tool call（真值參數，免 resolve）
+    CF->>OC: ⑪ scoped server · policy 分類
+    OC->>O: ⑫ XML-RPC（專用 API user 最小 ACL）
+    O-->>OC: ⑬ 原始資料
+    OC-->>CF: ⑭ 回傳（audit 只記 metadata）
+    CF-->>CX: ⑮ tool result
+    CX->>P: ⑯ 下一 turn request（含 tool result）
+    P->>CP: ⑰ tool result 一併重新遮罩
+    CP->>AI: ⑱ 送往模型
+    AI-->>CP: ⑲ 最終回覆（placeholder）
+    CP-->>P: ⑳ 轉回
+    P-->>CX: ㉑ 還原真值
+    CX-->>CC: ㉒ 完整回覆
+    CC-->>U: ㉓ 客戶收到完整內容
+```
+
+關鍵機制與原設計相同：模型輸出的 masked tool arguments 由 sidecar 還原後 Codex 才呼叫 MCP（⑩ 真值免 resolve）；Odoo 撈回的資料在下一 turn request（⑯）裡被同一 sidecar 重新遮罩（⑰）。**遮罩與還原仍只存在一個元件**，但這個元件從 LiteLLM 換成自建 sidecar——round-trip 邏輯自有、31 個 contract tests 全覆蓋。
+
+### 實際元件（as-built component view）
+
+```mermaid
+flowchart TB
+    subgraph CH["通道層 · 原樣不動"]
+        U[客戶] <--> LK[Lark / Feishu]
+        LK <--> CC[cc-connect]
+    end
+
+    subgraph AG["Agent 層"]
+        CX["Codex CLI<br>gpt-5.6-terra · xhigh · Responses wire API"]
+    end
+
+    subgraph GW["脫敏閘道層 · 自建 · 純 CPU"]
+        P["privacy sidecar<br>mask · restore · fail-closed · audit"]
+        PS["Presidio analyzer"]
+        TW["本地 TW regex＋checksum/Luhn"]
+        VR[("vault-redis<br>session mapping · tmpfs · noeviction")]
+        DR[("dictionary-redis<br>Odoo 精確字典")]
+        P <--> PS
+        P <--> TW
+        P <--> VR
+        P <--> DR
+    end
+
+    subgraph SYNC["字典同步 · 唯一持 Odoo 憑證的元件"]
+        DS["dictionary-sync"]
+    end
+
+    subgraph OUT["模型出口 · 唯一 cloud egress"]
+        CP["CLIProxyAPI<br>本機 ChatGPT OAuth state · 重試關閉"]
+    end
+
+    subgraph CLD["雲端 · 只收脫敏後資料"]
+        AI["ChatGPT 訂閱模型"]
+    end
+
+    subgraph ERP["地端 ERP 層"]
+        CF["ContextForge 1.0.6<br>scoped bot · 最小 RBAC · 30 天 JWT · admin 403"]
+        OC["odooclaw MCP · pinned"]
+        O[("Odoo")]
+        CF <--> OC
+        OC <--> O
+    end
+
+    CC <--> CX
+    CX <--> P
+    P <--> CP
+    CP <--> AI
+    CX <--> CF
+    DS --> DR
+    DS <--> O
+```
+
+與原 component view 的差異：LiteLLM proxy 換成自建 sidecar；還原狀態從 LiteLLM 內部移到獨立 **vault-redis**；新增 **dictionary-redis／dictionary-sync**（Odoo 精確字典，只有 sync 元件持 Odoo 憑證）；模型出口固定為 **CLIProxyAPI**（唯一有 Internet egress 的模型元件）；odoo-mcp 換成 pinned **odooclaw**；全部服務以 **Docker network segmentation** 隔離，host 只綁 `127.0.0.1:18400`／`:18444`。
+
+> 兩張 as-built 圖的 PNG／SVG 已匯出至 [`docs/assets/`](../assets/)（`06-asbuilt-sequence.*`、`06-asbuilt-component.*`）；`.mmd` 原始碼即內嵌於本節，重繪方式同文末附錄。
+
+### 驗收狀態（verification.md 摘要）
+
+- **25 項 acceptance 全 PASS**：31 contract tests、Gate 1（non-stream／SSE／tool call／multi-turn、八類合成 PII 遮罩還原）、Gate 2 fail-closed（刪 session mapping 後無 partial response、無 plaintext error）、ContextForge RBAC（bot 僅 `servers.read/use`＋`tools.read/execute`，admin API 403）、Odoo policy allow/deny、Lark live E2E（合成 PII 經 Odoo MCP read 精確還原）、network matrix 實測隔離、container log／git secret scan 零命中。
+- **未聲稱通過**（與原「已知邊界」對應）：附件圖片／PDF／audio OCR 脫敏——尚未實作，現況是**阻擋**；正式 Odoo write flow 未做 live mutation；無 corpus 級 recall／false-positive benchmark；無大規模 soak。
+- 完整 acceptance matrix 與重跑方式見 `docs/verification.md`。
+
+### 後續候選：金額遮罩（AMOUNT 字典）
+
+針對「非 PII 但商業敏感的金額」上雲的殘餘風險，最小切片做法已評估：dictionary-sync 增拉 `sale.order.amount_total`、`account.move.amount_total` 等欄位 → dictionary-redis 新增 `AMOUNT` entity → sidecar 精確比對。骨架現成（`ENTITY_KEYS` 加一類、sync 加查詢），但上線前要決三題：只遮 Odoo 輸出還是連人手打格式也遮（表面形式 variants 會膨脹字典）、誤殺門檻怎麼定（≥1000 或要求千分位，避免遮到 `16GB`／`512GB` 規格數字）、以及**遮掉金額後模型不能做金額推理**（placeholder 不保序不可計算）——是否接受取決於業務問句型態。
 
 上一篇：[〈LarkSuite 作為 AI agent channel 的三方 review〉](05-larksuite-as-ai-agent-channel-review.md)
 
