@@ -234,8 +234,9 @@ flowchart TB
 
     subgraph BOT["privacy-bot · 單一 container（cc-connect＋Codex 同住）"]
         CC["cc-connect"]
-        CX["Codex CLI<br>gpt-5.6-terra · xhigh · Responses wire API"]
+        CX["Codex CLI<br>gpt-5.6-terra · xhigh · Responses wire API<br>組合：還原後回覆＋Odoo tool result<br>（真值不出此 container）"]
         CC -->|fork child| CX
+        CX -->|組合好的完整回覆（真值）| CC
     end
 
     subgraph GW["脫敏閘道層 · 自建 · 純 CPU"]
@@ -274,10 +275,10 @@ flowchart TB
 
     LK <--> LP
     LP <--> CC
-    CX <--> P
-    P <--> CP
+    CX <-->|request 遮罩 · 回覆還原| P
+    P <-->|只有脫敏 payload| CP
     CP <--> AI
-    CX <--> CF
+    CX <-->|MCP tool call／tool result（真值）| CF
     DS --> DR
     DS <--> OP
 ```
