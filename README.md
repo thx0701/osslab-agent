@@ -18,6 +18,7 @@ OSSLab-agent 是一套自架的**多人 AI agent 與 SSO 協同架構**。同事
 - **企業 Mail 是身分基礎**：Lark 現行免費方案提供可自訂的商務 Email；可用自有網域建立個人與部門／功能性信箱。這些企業帳號是 SSO 的身分依據，搭配 Authentik 才能把同一個登入脈絡延伸到自架服務；實際額度與功能依 Lark 方案為準。
 - **SSO 優先**：Lark → Authentik → Cloudflare Access／NetBird／維護服務，減少帳密散落與新人上手成本。
 - **只採訂閱制 agent runtime**：AI Agent Server 以 cc-connect 串接多個 Codex、Grok 等訂閱制 agent build；費用遠比純 API 計價可控，因此不採 OpenClaw 或 Hermes 這類需自行承擔 API 用量的架構。
+- **個資不離地端**：送往訂閱制雲端模型的對話與 Odoo 資料，一律先經自建 privacy sidecar 可逆遮罩（session 級 placeholder），回覆與 tool result 在地端還原；雲端模型只看見遮罩後內容。已部署上線並通過驗收，作法見[〈06 · 隱私脫敏 gateway 架構〉](docs/field-notes/06-privacy-masking-gateway.md)。
 - **人先解鎖，agent 才接手**：專屬 agent 的 Chrome 使用對應同事的 Web 身分；本人先在 [OSSLab-agent 修改版 KasmVNC Chrome](docker/chrome/README.md) 解鎖 Vaultwarden，agent 才能在已解鎖的工作階段內協助操作，且永遠不取得主密碼。
 - **AI 是可控的虛擬助理**：依授權，agent 可直接操作 ERP、讀取與回覆 email、上架、查訪價格，或執行其他辦公室工作流；權限也能細緻限制為查詢、整理或草稿。寄信、付款、刪除、改權限與例外情況仍可要求人工確認或由真人接手。
 
@@ -48,7 +49,7 @@ Lark 群組／私訊／Mail／Base／Forms
 | [03 · 管理與治理](docs/field-notes/03-agent-governance.md) | 多人、多 agent 的分權、審核、留痕與資料隔離。 |
 | [04 · 自架平台與 IT 維護](docs/field-notes/04-open-source-it-operations.md) | 身分、VPN、Git、密碼庫、Agent Server、Odoo 選配與維護服務如何分工。 |
 | [05 · LarkSuite 作為 AI agent channel 的三方 review](docs/field-notes/05-larksuite-as-ai-agent-channel-review.md) | **定案**：LarkSuite 作 AI agent channel（Free／半年紀錄／Basic ~USD $6；SSO 主因；實作已完成）。 |
-| [06 · 隱私脫敏 gateway 架構](docs/field-notes/06-privacy-masking-gateway.md) | 訂閱制雲端 agent 前的個資脫敏與還原：LiteLLM＋Presidio＋ContextForge（設計定案，待 spike 驗證）。 |
+| [06 · 隱私脫敏 gateway 架構](docs/field-notes/06-privacy-masking-gateway.md) | 訂閱制雲端 agent 前的個資脫敏與還原。**已部署上線並通過完整驗收**：自建 privacy sidecar＋Codex＋CLIProxyAPI（原 LiteLLM 方案 spike 後未採用，原文與 as-built 更新節並存）。 |
 
 ## 公開進度
 
