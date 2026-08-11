@@ -297,6 +297,24 @@ flowchart TB
 
 針對「非 PII 但商業敏感的金額」上雲的殘餘風險，最小切片做法已評估：dictionary-sync 增拉 `sale.order.amount_total`、`account.move.amount_total` 等欄位 → dictionary-redis 新增 `AMOUNT` entity → sidecar 精確比對。骨架現成（`ENTITY_KEYS` 加一類、sync 加查詢），但上線前要決三題：只遮 Odoo 輸出還是連人手打格式也遮（表面形式 variants 會膨脹字典）、誤殺門檻怎麼定（≥1000 或要求千分位，避免遮到 `16GB`／`512GB` 規格數字）、以及**遮掉金額後模型不能做金額推理**（placeholder 不保序不可計算）——是否接受取決於業務問句型態。
 
+## 補充：LiteLLM v1.96.0 POC 複驗（2026-08-11）
+
+> 以最新 LiteLLM 重做方案1（gateway 層脫敏）POC。程式碼、patch、驗證矩陣與對照數據在 Forgejo `osslab/privacy-masking-gateway` 的 `spike/litellm-gateway/`（PR #4）；此節只記結論與差異。
+
+**方案1 技術上翻案成立**：v1.96.0＋3 個 patch 後，當初 spike 的殺手全數消失——
+
+- Track A（fake model 矩陣，20/20 PASS）：chat／responses × 串流／非串流 mask＋restore、`tool_calls[].function.arguments` 還原（套用上游 [#32014](https://github.com/BerriAI/litellm/pull/32014) 生效）、多實體（同訊息 `<PERSON_1>/<_2>`、跨訊息碰撞以 request-scoped 編號 patch 修復）、TW 識別碼（身分證／統編／09 手機 ad-hoc recognizer）。
+- Track B（真實鏈路）：Codex CLI → LiteLLM → CLIProxyAPI → ChatGPT 訂閱 OAuth **3/3 成功**；canary 測試模型自述只見 `<EMAIL_ADDRESS_1>`，tool call 寫出的檔案內容是真值。
+- 三個 patch：上游 #32014（未 merge，直接套用）、自寫 Responses guardrail handler tool_calls write-back（上游連 issue 都沒有）、自寫 responses transformation 拔 `metadata`（cliproxy 見此參數即 400）。
+
+**新發現的坑（README 有完整列表）**：`presidio_filter_scope` 預設 `"both"` 會多建 output-mask callback 把已還原真值重遮罩，必設 `"input"`；內建 `PHONE_NUMBER` 與自訂 `TW_MOBILE` 跨型別重疊偵測會截爛 placeholder（還原成 `0912-345-678R_2>`），台灣場景停用內建。
+
+**與 as-built sidecar 對照（同雲端模型）**：延遲同級（2.7–13.2s vs 2.5–14.0s），guardrail 額外開銷 ~50ms 可忽略。as-built 仍保有 **session 級 mapping**（vault-redis＋HMAC key）、**Odoo 精確字典中文姓名**（LiteLLM 官方 en NER 對中文姓名不命中）、**串流 delta 級還原**（LiteLLM chat 整段 buffer、responses delta 不還原）三項硬優勢，且行為完全自控；方案1 換來的是少維一套自研碼，代價是追上游＋port 3 patch＋接受 LiteLLM 串流行為。
+
+**方案2（全地端）複驗**：本機 VM 無 GPU 且高負載，CPU 推理單題 >10 分鐘不可行；LAN 兩台 GPU 推論機（DGX Spark、ds4.c）皆營收用途、當下停機。「瓶頸在硬體不在軟體、GPU 是營收用途」的原判斷再次成立。另實測到**訂閱 OAuth egress 是共同單點**：cliproxy→ChatGPT 故障期間方案1 與 as-built 同時全掛。
+
+**結論不變**：as-built sidecar 繼續；方案1 從「不可行」改列「可行但需自維 3 patch」的備援選項；兩個自寫 patch（Responses tool_calls write-back、responses 拔 metadata）值得回饋上游。
+
 上一篇：[〈LarkSuite 作為 AI agent channel 的三方 review〉](05-larksuite-as-ai-agent-channel-review.md)
 
 ### 附：重繪指令
