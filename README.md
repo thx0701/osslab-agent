@@ -1,6 +1,6 @@
 # OSSLab-agent
 
-> **狀態：OSSLab 正在測試上線中。** 現階段先公開架構與可公開的 Chrome 容器；後續預定釋出可重放的 patch file 與安裝／部署 plan，讓人或 AI agent 都能依步驟完成安裝，而不必從零猜測環境差異。
+> **狀態：OSSLab 正在測試上線中。** 現階段先公開架構、可公開的 Chrome 容器，以及一份可交給 AI 執行的[單機安裝提示](plans/bootstrap-from-prompt.md)。後續預定再釋出可重放的 patch file。
 
 **Lark Suite 是給企業團隊使用的 IM 與協作平台**：不論 app 或 web，除了群組、私訊，也整合文件、試算表、信箱、表單、資料流程與審核，讓團隊在一個 workspace 裡溝通和做事。即使採免費方案，企業 IM、可自動化的 Base、文書協作、Mail／通知都能先集中；再搭配 Authentik，這個 workspace 便成為 SSO 的身分基礎與 AI agent 的協作 channel。
 
@@ -53,9 +53,9 @@ Lark 群組／私訊／Mail／Base／Forms
 
 ## 公開進度
 
-OSSLab 正在測試上線；現階段的文件描述已驗證的方向與尚在整理中的部署基礎。預定把可公開的環境差異整理成 **patch file**，把前置條件、安裝順序、驗證與回復方式整理成 **plan**，讓後續的人或 AI agent 可以照同一條可追溯的路徑部署，而不是重做一次猜測與手動設定。
+OSSLab 正在測試上線。單機通道（Lark 國際版 bot、訂閱制 CLI、cc-connect、lark-cli、BrowseForge）已整理成可直接交給 AI 執行的提示：[plans/bootstrap-from-prompt.md](plans/bootstrap-from-prompt.md)。
 
-目前已先列出 [Kasm 使用者身分、CDP 邊界與 VNC secret 輪替 plan](plans/kasm-identity-cdp-and-secret-rotation.md)：先把可直接連到瀏覽器的風險收斂，再以 Authentik／Lark OIDC 平行驗證完整 Kasm Workspaces，讓「哪位同事、哪一個 browser session、哪一個 agent」可被可靠對應。
+另有 [Kasm 使用者身分、CDP 邊界與 VNC secret 輪替 plan](plans/kasm-identity-cdp-and-secret-rotation.md)：先把可直接連到瀏覽器的風險收斂，再以 Authentik／Lark OIDC 平行驗證完整 Kasm Workspaces，讓「哪位同事、哪一個 browser session、哪一個 agent」可被可靠對應。
 
 ## License
 
