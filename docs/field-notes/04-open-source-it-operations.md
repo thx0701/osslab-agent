@@ -38,7 +38,7 @@ Authentik：統一身分驗證與 SSO 中心
 | 真實網站操作 | [OSSLab-agent 修改版 KasmVNC Chrome](../../docker/chrome/README.md)、CDP、Playwright | 以 Kasm Chrome 為 base 的修改版，含繁中輸入、CDP relay 與 Bitwarden policy。每位同事／agent 有自己的 profile，真人可接手同一個瀏覽器工作階段。 |
 | 密碼管理 | [Vaultwarden](https://github.com/dani-garcia/vaultwarden) | 同事先在自己的 KasmVNC Chrome 解鎖 Vaultwarden，專屬 agent 才能在該 session 使用登入資料，永遠不取得主密碼；服務秘密另以受限 API／CLI helper 讀取。 |
 | 遠端維護 | [lejianwen/rustdesk-server](https://github.com/lejianwen/rustdesk-server) | 自架 RustDesk server／API，處理 IT 遠端維護與短期分享需求。 |
-| SSH／遠端桌面維護 | [Termix](https://github.com/Termix-SSH/Termix) | 自架的 SSH 與遠端桌面管理入口。人員以 OIDC 進行互動維護；AI 的非互動維運則經專用機器身分請求 Termix，再由 Termix SSH 至獲授權主機。 |
+| SSH／遠端桌面維護 | [Termix](https://github.com/Termix-SSH/Termix) | 自架的 SSH 與遠端桌面管理入口。人員以 OIDC 進行互動維護；Agent 專用使用者與 API key 已建立，經受限操作入口發出非互動維運請求的流程則屬規劃。 |
 
 前兩項不是都屬於開源軟體：訂閱制 code agent 是刻意保留的外部 runtime；其餘元件則提供可以自架、檢視、更新與替換的技術底座。這種組合比把所有責任壓在單一 SaaS 或單一自研框架更務實。
 
@@ -54,19 +54,21 @@ RustDesk 用於電腦與工作站的遠端支援；需要對外協助時，分�
 
 ## 人員與 Agent 走不同的 SSH 維運路徑
 
-人員與 Agent 不能共用同一種登入與權限模型。人員以自己的 Lark 企業身分經 Authentik／OIDC 登入 Termix，開啟互動式 SSH 或遠端桌面；Agent 不持有各主機的 SSH 私鑰，而是使用 Termix 中已建立的專用 Agent 使用者與 API key，呼叫非互動式的維運操作，再由 Termix 以被授權的連線設定 SSH 至對應主機。
+人員與 Agent 不能共用同一種登入與權限模型。人員以自己的 Lark 企業身分經 Authentik／OIDC 登入 Termix，開啟互動式 SSH 或遠端桌面。現況是 Termix 中已建立專用 Agent 使用者與 API key，與人員登入分離；規劃中的流程才是 Agent 經獨立的受限維運入口呼叫 Termix API 的非互動 `exec`，再由 Termix 以被授權的連線設定 SSH 至對應主機。如此 Agent 不必直接持有各主機的 SSH 私鑰。
 
 ```text
 人員：Lark 企業帳號 → Authentik / OIDC → Termix → 互動式 SSH／遠端桌面 → 依角色可見的主機
 
-Agent：專用 Agent 身分 + API key → 受限的非互動維運操作 → Termix → SSH → 已授權主機
+現況：Termix 內的專用 Agent 使用者 + API key；Termix 內建 SSH 稽核紀錄
+
+規劃：Agent → 獨立的受限維運入口／操作 allowlist → Termix API 的非互動 exec → SSH → 已授權主機
 ```
 
-Termix 的 API key 代表一個特定使用者，並可設定到期日；適合腳本與非互動操作。相對地，互動式 `termix ssh` 使用 WebSocket，不能以 API key 開啟。這個切分讓 Agent 不必直接持有主機金鑰，也讓人員互動操作不被機器憑證取代。[Termix 的 API key 說明](https://docs.termix.site/features/api/api-keys/)與 [`exec`／`ssh` 的行為差異](https://docs.termix.site/cli/commands/exec-and-ssh/)是這個設計的上游依據。
+Termix 的 API key 代表一個特定使用者，並可設定到期日；適合腳本與非互動操作。相對地，互動式 `termix ssh` 使用 WebSocket，不能以 API key 開啟。完成上述規劃後，這個切分可讓 Agent 不必直接持有主機金鑰，也讓人員互動操作不被機器憑證取代。[Termix 的 API key 說明](https://docs.termix.site/features/api/api-keys/)與 [`exec`／`ssh` 的行為差異](https://docs.termix.site/cli/commands/exec-and-ssh/)是這個設計的上游依據。
 
-但 API key 本身不是逐命令權限系統。安全性來自專用身分可見的主機範圍、獨立維運工具入口中的操作 allowlist、主機端帳號與提權限制，以及稽核紀錄的共同約束。Termix 已有內建 SSH 稽核紀錄可供追查；不過不能把它誤解為所有非互動 `exec` 都一定會原生保存完整命令內容。高影響操作仍應保留人工確認。
+但 API key 本身不是逐命令權限系統。規劃中的安全性必須由專用身分可見的主機範圍、獨立維運工具入口中的操作 allowlist、主機端帳號與提權限制，以及稽核紀錄共同構成。Termix 已有內建 SSH 稽核紀錄可供追查；不過不能把它誤解為所有非互動 `exec` 都一定會原生保存完整命令內容。高影響操作仍應保留人工確認。
 
-目前專用 Agent 使用者與 API key 已建立；「受限維運工具入口」與其操作 allowlist 則尚未在這個公開 repository 實作或宣告上線。因此 Agent 的一般對話能力與維運能力必須維持分離，在入口完成前不應把 Termix API 當成可任意呼叫的通用 shell。
+目前專用 Agent 使用者與 API key 已建立，Termix 的內建 SSH 稽核紀錄也可使用；本文尚未宣告「受限維運工具入口」與其操作 allowlist 已上線。因此 Agent 的一般對話能力與維運能力必須維持分離，在完成並公告前不應把 Termix API 當成可任意呼叫的通用 shell。
 
 ## 維護比選型更重要
 
