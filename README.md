@@ -50,6 +50,7 @@ Lark 群組／私訊／Mail／Base／Forms
 | [04 · 自架平台與 IT 維護](docs/field-notes/04-open-source-it-operations.md) | 身分、VPN、Git、密碼庫、Agent Server、Odoo 選配與維護服務如何分工。 |
 | [05 · LarkSuite 作為 AI agent channel 的三方 review](docs/field-notes/05-larksuite-as-ai-agent-channel-review.md) | **定案**：LarkSuite 作 AI agent channel（Free／半年紀錄／Basic ~USD $6；SSO 主因；實作已完成）。 |
 | [06 · 隱私脫敏 gateway 架構](docs/field-notes/06-privacy-masking-gateway.md) | 訂閱制雲端 agent 前的個資脫敏與還原。**已部署上線並通過完整驗收**：自建 privacy sidecar＋Codex＋CLIProxyAPI（原 LiteLLM 方案 spike 後未採用，原文與 as-built 更新節並存）。 |
+| [07 · 桌面工作台、Office 與 Computer Use](docs/field-notes/07-desktop-workspaces-and-computer-use.md) | Lark、GenOffice、agent browser、OpenAI 桌面工作台與開源桌面 driver 的分層。 |
 
 ## 公開進度
 

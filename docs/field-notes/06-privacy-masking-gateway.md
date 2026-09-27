@@ -329,6 +329,8 @@ flowchart TB
 
 上一篇：[〈LarkSuite 作為 AI agent channel 的三方 review〉](05-larksuite-as-ai-agent-channel-review.md)
 
+下一篇：[〈桌面工作台、Office 與 Computer Use〉](07-desktop-workspaces-and-computer-use.md)
+
 ### 附：重繪指令
 
 圖檔以 mermaid 原始碼為準，匯出使用 [mermaid-skill](https://github.com/Agents365-ai/mermaid-skill) 流程（validate → export → vision self-check）：
