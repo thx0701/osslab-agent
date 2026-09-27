@@ -25,22 +25,33 @@ Authentik：統一身分驗證與 SSO 中心
 | 元件 | 在我們架構中的角色 |
 | --- | --- |
 | **[Forgejo](https://forgejo.org/)** | 自架 Git 平台。程式、部署設定、文件與操作／開發紀錄都以 repository、commit、branch、PR 的方式留下可追溯變更；它不是只拿來放原始碼。 |
-| **AI Agent Server** | 一台專用 server 承載每位同事的專屬 agent。每個 agent 的 session、browser profile、bot identity、project context 與能力設定都可不同，避免資料和登入狀態串在一起。 |
-| **[cc-connect](https://github.com/chenhg5/cc-connect)** | AI agent 的跨訊息通道：把 Lark 事件路由到對應同事的專屬 agent，再回傳進度與人工介入請求；對同事不會另外露出第二個聊天 UI。 |
+| **AI Agent Server** | 專用 server 執行 cc-connect 與已設定的 AI harness（如 Codex CLI）；每位同事可有獨立的 session、browser profile、bot identity、project context 與能力設定，避免資料和登入狀態串在一起。Harness 負責執行工作，模型與登入／訂閱則按工具和專案分開設定。 |
+| **[cc-connect](https://github.com/chenhg5/cc-connect)** | 已設定串接 LarkSuite 的訊息閘道：接收 Lark 事件，依路由交給對應同事的 AI harness，再把結果、進度與需人工處理的狀態送回對話。cc-connect 負責訊息收發與路由，不是模型或 harness 本身。 |
+| **[Paseo](https://github.com/getpaseo/paseo)** | 開源的 Web／桌面工作台與 daemon，用來連接並操作開發機上已安裝、已設定的 AI harness。開發者可直接在工作台選擇專案與 agent，並行或持續處理較複雜的程式開發；Paseo 是操作介面，不提供模型或訂閱本身。 |
 | **[lark-cli](https://github.com/larksuite/cli)** | Lark 官方維護、為人員與 AI agent 設計的 CLI。agent 透過它以受控權限操作 Messenger、Docs、Base、Sheets、Mail、Tasks 等 Lark 工作面，再由 cc-connect 把任務與結果接回對的對話脈絡。 |
 | **[Odoo 18 Community Edition](https://github.com/odoo/odoo)** | **選配 ERP connector**。日常表單與流程可先由 Lark Base／Forms 承接；只有需要完整 ERP 控管時才接入 Odoo CE。現有客製以社群版加自有 addons 持續調整，AI 可協助高頻率改碼、測試與驗證，因此不把企業版授權當成改流程的必要前提。 |
+
+### Lark 訊息入口與開發工作台各司其職
+
+cc-connect 與 Paseo 是兩種不同的工作入口，不是兩套互相取代的 agent：前者適合從 LarkSuite 派送明確任務、接收進度與確認；後者讓開發者直接在 Web 工作台進入 harness 與專案，處理需要多輪修改、檢視和持續操作的開發工作。較複雜的開發不必被限制成「從 Lark IM 呼叫一次 AI」的模式。
+
+```text
+LarkSuite：訊息／任務 → cc-connect → 對應 AI harness → 結果／確認回到 Lark
+
+開發者：Paseo Web 工作台 → 專案與已設定的 AI harness → 多輪開發／檢視／修改
+```
 
 ## 密碼與遠端維護
 
 | 範圍 | 元件 | 在整體中的位置 |
 | --- | --- | --- |
-| agent runtime | Codex、Grok 等訂閱制 code agent build | 只採訂閱制，避免純 API 用量成本；不採 OpenClaw 或 Hermes 架構。 |
+| AI harness 與模型 | Codex、Grok 等 harness，搭配各自支援的訂閱制模型／帳號 | Harness 是執行與工具介面，模型及其登入／訂閱是另一層設定；目前以訂閱制方案為主，避免純 API 用量成本不可預期，不採 OpenClaw 或 Hermes 架構。 |
 | 真實網站操作 | [OSSLab-agent 修改版 KasmVNC Chrome](../../docker/chrome/README.md)、CDP、Playwright | 以 Kasm Chrome 為 base 的修改版，含繁中輸入、CDP relay 與 Bitwarden policy。每位同事／agent 有自己的 profile，真人可接手同一個瀏覽器工作階段。 |
 | 密碼管理 | [Vaultwarden](https://github.com/dani-garcia/vaultwarden) | 同事先在自己的 KasmVNC Chrome 解鎖 Vaultwarden，專屬 agent 才能在該 session 使用登入資料，永遠不取得主密碼；服務秘密另以受限 API／CLI helper 讀取。 |
 | 遠端維護 | [lejianwen/rustdesk-server](https://github.com/lejianwen/rustdesk-server) | 自架 RustDesk server／API，處理 IT 遠端維護與短期分享需求。 |
 | SSH／遠端桌面維護 | [Termix](https://github.com/Termix-SSH/Termix) | 自架的 SSH 與遠端桌面管理入口。人員以 OIDC 進行互動維護；Agent 使用專用使用者與 API key，經受限操作入口發出非互動維運請求，再由 Termix SSH 至獲授權主機。 |
 
-前兩項不是都屬於開源軟體：訂閱制 code agent 是刻意保留的外部 runtime；其餘元件則提供可以自架、檢視、更新與替換的技術底座。這種組合比把所有責任壓在單一 SaaS 或單一自研框架更務實。
+訂閱制模型／agent 服務是刻意保留的外部能力；cc-connect、Paseo 與其他自架元件則提供可以檢視、更新與替換的技術底座。這種組合比把所有責任壓在單一 SaaS 或單一自研框架更務實。
 
 ## RustDesk 與 Termix 已經納入 SSO
 
